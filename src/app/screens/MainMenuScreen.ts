@@ -30,6 +30,7 @@ export class MainMenuScreen extends Container {
     });
     this.addChild(this.title);
 
+    // TODO: auto get games
     // TODO: add icon
     this.directionsButton = new Button({}, "Directions", 450, 125);
     this.directionsButton.onPress.connect(

@@ -13,6 +13,7 @@ export class Button extends FancyButton {
     width = 400,
     height = 150,
     enabled = true,
+    shadow = true,
   ) {
     const opts: ButtonOptions = {
       defaultView: "button-blue.png",
@@ -58,14 +59,16 @@ export class Button extends FancyButton {
 
     super({ ...opts, ...options });
 
-    this.filters = [
-      new DropShadowFilter({
-        offset: { x: 4, y: 6 },
-        color: 0x000000,
-        alpha: 0.5,
-        blur: 3,
-      }),
-    ];
+    if (shadow) {
+      this.filters = [
+        new DropShadowFilter({
+          offset: { x: 4, y: 6 },
+          color: 0x000000,
+          alpha: 0.5,
+          blur: 3,
+        }),
+      ];
+    }
 
     this.width = width;
     this.height = height;

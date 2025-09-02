@@ -1,13 +1,13 @@
 import { Container } from "pixi.js";
 import { gameMgr } from "../../games/GameManager";
-import { Game } from "../../games/Game";
+import { IGame } from "../../games/Game";
 
 /** Game screen */
 export class GameScreen extends Container {
   /** Assets bundles required by this screen */
   public static assetBundles = ["menu"];
 
-  private game!: Game | null;
+  private game!: IGame | null;
 
   constructor() {
     super();

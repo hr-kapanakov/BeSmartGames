@@ -10,12 +10,22 @@ export class Level {
   }
 }
 
-export class Game {
+export interface IGame {
+  levels: Level[];
+  get name(): string;
+  setup(): void;
+  load(): void;
+  save(): void;
+  init(container: Container, levelIndex: number): void;
+  resize(_width: number, _height: number): void;
+}
+
+export class Game<L extends Level> implements IGame {
   /** Screen container */
   protected container!: Container;
 
-  public levels: Level[] = [];
-  public currentLevel!: Level;
+  public levels: L[] = [];
+  public currentLevel!: L;
 
   public get name(): string {
     return this.constructor.name.replace("Game", "");
@@ -29,10 +39,13 @@ export class Game {
 
   public save() {}
 
-  public init(container: Container, idx: number) {
+  public init(container: Container, levelIndex: number) {
     this.container = container;
-    this.currentLevel = this.levels[idx - 1];
+    this.currentLevel = this.levels[levelIndex - 1];
+    this.initLevel();
   }
+
+  public initLevel() {}
 
   public resize(_width: number, _height: number) {}
 }

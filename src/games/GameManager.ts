@@ -1,8 +1,8 @@
 import { DirectionsGame } from "./directions/DirectionsGame";
-import { Game } from "./Game";
+import { IGame } from "./Game";
 
 export class GameManager {
-  private games: Game[] = [new DirectionsGame()];
+  private games: IGame[] = [new DirectionsGame()];
 
   constructor() {
     this.initGames();
@@ -17,7 +17,7 @@ export class GameManager {
 
   // TODO: load/save to json file
 
-  public game(name: string): Game | null {
+  public game(name: string): IGame | null {
     return this.games.find((g) => g.name == name) || null;
   }
 }

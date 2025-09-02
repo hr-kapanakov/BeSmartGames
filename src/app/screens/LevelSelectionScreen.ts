@@ -53,6 +53,7 @@ export class LevelSelectionScreen extends Container {
         levels[idx].unlocked,
       );
       button.position.set(100 + idx * 150, 200);
+
       if (levels[idx].unlocked) {
         button.onPress.connect(async () => {
           await engine().navigation.showScreen(LoadScreen);
@@ -63,6 +64,7 @@ export class LevelSelectionScreen extends Container {
           );
         });
       }
+
       this.levelButtons.push(button);
       this.addChild(button);
     }
