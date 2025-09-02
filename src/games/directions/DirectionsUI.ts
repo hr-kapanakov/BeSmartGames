@@ -3,6 +3,9 @@ import { Button } from "../../app/ui/Button";
 import { ScrollBox } from "@pixi/ui";
 import { DirectionsGame } from "./DirectionsGame";
 import { Direction } from "../Utils";
+import { Label } from "../../app/ui/Label";
+import { SettingsPopup } from "../../app/popups/SettingsPopup";
+import { engine } from "../../app/getEngine";
 
 export class DirectionUI {
   private static ButtonSize = 96;
@@ -10,6 +13,9 @@ export class DirectionUI {
   private container: Container;
   private game: DirectionsGame;
 
+  /** Level label */
+  private levelLabel: Button;
+  private levelPoints: Button;
   /** Buttons */
   private upButton: Button;
   private rightButton: Button;
@@ -20,16 +26,54 @@ export class DirectionUI {
   private scrollBoxUpButton: Button;
   private scrollBoxDownButton: Button;
   private resetButton: Button;
+  /** Settings button */
+  private settingsButton: Button;
 
   constructor(game: DirectionsGame, container: Container) {
     this.game = game;
     this.container = container;
 
+    // level info
+    this.levelLabel = new Button(
+      {
+        defaultView: "button2.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        textOffset: { x: 0, y: -3 },
+      },
+      `Level ${this.game.currLevelIdx + 1}`,
+      168,
+      64,
+      false,
+      false,
+    );
+    (this.levelLabel.textView as Label).style.fontSize = 30;
+    this.container.addChild(this.levelLabel);
+
+    this.levelPoints = new Button(
+      {
+        defaultView: "rounded-box.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        textOffset: { x: 25, y: 0 },
+        icon: "stars.png",
+        defaultIconScale: 0.7,
+        iconOffset: { x: -20 },
+      },
+      `${this.game.currentLevel.points}`,
+      112,
+      64,
+      false,
+      false,
+    );
+    (this.levelPoints.textView as Label).style.fontSize = 30;
+    this.container.addChild(this.levelPoints);
+
+    // directions
     this.upButton = this.addDirectionsButton(Direction.Up);
     this.rightButton = this.addDirectionsButton(Direction.Right);
     this.downButton = this.addDirectionsButton(Direction.Down);
     this.leftButton = this.addDirectionsButton(Direction.Left);
 
+    // scroll box
     this.scrollBox = new ScrollBox({
       background: "#7490A6",
       width: DirectionUI.ButtonSize + 6,
@@ -47,6 +91,7 @@ export class DirectionUI {
     );
     this.container.addChild(this.scrollBox);
 
+    // scroll box buttons
     this.scrollBoxUpButton = new Button(
       {
         defaultView: "button.png",
@@ -109,11 +154,34 @@ export class DirectionUI {
     });
     this.container.addChild(this.resetButton);
 
-    // TODO: level number, settings?, points
+    this.settingsButton = new Button(
+      {
+        defaultView: "button2.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        anchor: 0.5,
+        icon: "icon-settings.png",
+      },
+      "",
+      64,
+      64,
+    );
+    this.settingsButton.onPress.connect(() =>
+      engine().navigation.presentPopup(SettingsPopup),
+    );
+    this.container.addChild(this.settingsButton);
   }
 
   public resize(width: number, height: number): void {
     const centerX = width / 2;
+    this.levelLabel.position.set(
+      centerX + this.levelLabel.width / 2,
+      height * 0.05,
+    );
+    this.levelPoints.position.set(
+      width * 0.01 + this.levelPoints.width / 2,
+      height * 0.05,
+    );
+
     this.upButton.position.set(
       centerX - DirectionUI.ButtonSize * 1.8,
       height * 0.9,
@@ -147,6 +215,30 @@ export class DirectionUI {
       width * 0.01 + DirectionUI.ButtonSize / 2 + 3,
       height * 0.2 + this.scrollBox.height + DirectionUI.ButtonSize * 0.8,
     );
+
+    this.settingsButton.position.set(
+      width * 0.99 - this.settingsButton.width / 2,
+      height * 0.05,
+    );
+  }
+
+  public update() {
+    (this.levelPoints.textView as Label).text =
+      `${this.game.currentLevel.points}`;
+    const scrollItem = this.scrollBox.items[this.game.currDirIdx];
+    if (scrollItem) {
+      scrollItem.scale = 0.8;
+      setTimeout(() => {
+        scrollItem.scale = 0.75;
+
+        this.scrollBox.scrollTo(
+          Math.min(
+            this.scrollBox.items.length - 1,
+            (Math.floor(this.game.currDirIdx / 4) + 1) * 4,
+          ),
+        );
+      }, 300);
+    }
   }
 
   private addDirectionsButton(direction: Direction) {

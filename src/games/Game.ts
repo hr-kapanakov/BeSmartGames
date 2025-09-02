@@ -4,12 +4,13 @@ import { Container } from "pixi.js";
 export class Level {
   public index = 0;
   public unlocked = false;
+  public points = 0;
 
   constructor(init?: Partial<Level>) {
     Object.assign(this, init);
   }
 
-  public init() { }
+  public init() {}
 }
 
 export interface IGame {

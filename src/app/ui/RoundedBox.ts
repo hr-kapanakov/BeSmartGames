@@ -6,7 +6,7 @@ const defaultRoundedBoxOptions = {
   height: 600,
   shadow: true,
   shadowColor: 0xa0a0a0,
-  shadowOffset: 22,
+  shadowOffset: 11,
 };
 
 export type RoundedBoxOptions = typeof defaultRoundedBoxOptions;
@@ -24,11 +24,11 @@ export class RoundedBox extends Container {
     super();
     const opts = { ...defaultRoundedBoxOptions, ...options };
     this.image = new NineSliceSprite({
-      texture: Texture.from("rounded-rectangle.png"),
-      leftWidth: 34,
-      topHeight: 34,
-      rightWidth: 34,
-      bottomHeight: 34,
+      texture: Texture.from("rounded-box.png"),
+      leftWidth: 64,
+      topHeight: 64,
+      rightWidth: 64,
+      bottomHeight: 64,
       width: opts.width,
       height: opts.height,
       tint: opts.color,
@@ -39,16 +39,16 @@ export class RoundedBox extends Container {
 
     if (opts.shadow) {
       this.shadow = new NineSliceSprite({
-        texture: Texture.from("rounded-rectangle.png"),
-        leftWidth: 34,
-        topHeight: 34,
-        rightWidth: 34,
-        bottomHeight: 34,
+        texture: Texture.from("rounded-box.png"),
+        leftWidth: 64,
+        topHeight: 64,
+        rightWidth: 64,
+        bottomHeight: 64,
         width: opts.width,
         height: opts.height,
         tint: opts.shadowColor,
       });
-      this.shadow.x = -this.shadow.width * 0.5;
+      this.shadow.x = -this.shadow.width * 0.5 + opts.shadowOffset / 2;
       this.shadow.y = -this.shadow.height * 0.5 + opts.shadowOffset;
       this.addChildAt(this.shadow, 0);
     }

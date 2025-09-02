@@ -56,17 +56,12 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     // finish after robot
     this.addFinishSprite();
 
-    // TODO: level hints?
-
     //this.fieldContainer.interactive = true;
     //this.fieldContainer.on("pointerdown", () => (this.started = false));
     this.container.addChild(this.fieldContainer);
 
     // UI
     this.ui = new DirectionUI(this, this.container);
-
-    // TODO: remove?
-    engine().ticker.add((ticker) => this.update(ticker));
   }
 
   public resize(width: number, height: number): void {
@@ -89,15 +84,15 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     let rotation = 0;
     if (this.currentLevel.finishDirection == Direction.Up) {
       rotation = -Math.PI / 2;
-      y += 32;
+      y += 24;
     } else if (this.currentLevel.finishDirection == Direction.Right) {
-      x -= 32;
+      x -= 24;
     } else if (this.currentLevel.finishDirection == Direction.Down) {
       rotation = Math.PI / 2;
-      y -= 32;
+      y -= 24;
     } else if (this.currentLevel.finishDirection == Direction.Left) {
       rotation = Math.PI;
-      x += 32;
+      x += 24;
     }
 
     this.fieldContainer.addChild(
@@ -122,11 +117,23 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.fieldContainer.addChild(this.robotSprite);
 
     this.robotSprite.interactive = true;
-    this.robotSprite.on("pointerdown", () => (this.currDirIdx = 0)); // TODO: remove started -> add/remove ticker
+    this.robotSprite.on("pointerdown", () => this.startGame());
     this.stopGame();
   }
 
+  private callback = (t: Ticker) => this.update(t);
+  public startGame() {
+    if (this.currDirIdx >= 0) {
+      this.stopGame();
+      return; //cannot start multiple times
+    }
+    this.currDirIdx = 0;
+    engine().ticker.add(this.callback);
+    this.ui.update();
+  }
+
   public stopGame() {
+    engine().ticker.remove(this.callback);
     this.currDirIdx = -1;
     this.previousTileIdx = this.currentLevel.start;
 
@@ -143,8 +150,8 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.currentLevel.start.x * 64,
       this.currentLevel.start.y * 64,
     );
+    this.robotSprite.currentFrame = 0;
     this.robotSprite.scale = 1;
-    // TODO: remove points?
   }
 
   private updateDelta = 0;
@@ -187,7 +194,11 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     // robot fall
     if (tile == TileType.None) {
       this.robotSprite.scale = this.robotSprite.scale.x - 0.1;
-      if (this.robotSprite.scale.x < 0.1) this.stopGame();
+      if (this.robotSprite.scale.x < 0.1) {
+        this.stopGame();
+        this.currentLevel.points = Math.max(0, this.currentLevel.points - 1);
+        this.ui.update();
+      }
     }
 
     // finish
@@ -195,7 +206,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.previousTileIdx.x == this.currentLevel.finish.x &&
       this.previousTileIdx.y == this.currentLevel.finish.y
     ) {
-      console.log("finish") // TODO: popup with points?
+      console.log("finish"); // TODO: popup with points?
       this.stopGame();
       this.directions = [];
 
@@ -224,7 +235,9 @@ export class DirectionsGame extends Game<DirectionsLevel> {
           this.robotSprite.rotation = Math.PI;
         }
         this.currDirIdx++;
+        this.ui.update();
       }
+      // TODO: bug - if forward, but no set direction
     }
   }
 }

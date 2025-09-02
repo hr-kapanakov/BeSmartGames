@@ -50,14 +50,14 @@ export class SettingsPopup extends Container {
     this.title = new Label({
       text: "Settings",
       style: {
-        fill: 0xec1561,
+        fill: "white",
         fontSize: 50,
       },
     });
     this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
     this.panel.addChild(this.title);
 
-    this.doneButton = new Button({ text: "OK" });
+    this.doneButton = new Button({}, "OK", 250, 96);
     this.doneButton.y = this.panelBase.boxHeight * 0.5 - 78;
     this.doneButton.onPress.connect(() => engine().navigation.dismissPopup());
     this.panel.addChild(this.doneButton);

@@ -29,7 +29,7 @@ class UserSettings {
 
   /** Get background music volume */
   public getBgmVolume() {
-    return storage.getNumber(KEY_VOLUME_BGM) ?? 1;
+    return storage.getNumber(KEY_VOLUME_BGM) ?? 0.3;
   }
 
   /** Set background music volume */

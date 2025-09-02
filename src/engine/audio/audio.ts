@@ -13,7 +13,7 @@ export class BGM {
   /** Current music instance being played */
   public current?: Sound;
   /** Current volume set */
-  private volume = 1;
+  private volume = 0.3;
 
   /** Play a background music, fading out and stopping the previous, if there is one */
   public async play(alias: string, options?: PlayOptions) {

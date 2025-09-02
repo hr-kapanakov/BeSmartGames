@@ -1,6 +1,7 @@
 import { Container } from "pixi.js";
 import { gameMgr } from "../../games/GameManager";
 import { IGame } from "../../games/Game";
+import { engine } from "../getEngine";
 
 /** Game screen */
 export class GameScreen extends Container {
@@ -25,6 +26,7 @@ export class GameScreen extends Container {
 
   /** Show screen with animations */
   public async show() {
+    engine().audio.bgm.play("menu/sounds/bgm-main.mp3", { volume: 0.5 });
     this.alpha = 1;
   }
 

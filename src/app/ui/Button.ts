@@ -2,11 +2,14 @@ import { ButtonOptions, FancyButton } from "@pixi/ui";
 
 import { Label } from "./Label";
 import { DropShadowFilter } from "pixi-filters/drop-shadow";
+import { engine } from "../getEngine";
 
 /**
  * The big rectangle button, with a label, idle and pressed states
  */
 export class Button extends FancyButton {
+  private _enabled = true;
+
   constructor(
     options: Partial<ButtonOptions> = {},
     text = "",
@@ -59,6 +62,7 @@ export class Button extends FancyButton {
 
     super({ ...opts, ...options });
 
+    this._enabled = enabled;
     if (shadow) {
       this.filters = [
         new DropShadowFilter({
@@ -78,12 +82,10 @@ export class Button extends FancyButton {
   }
 
   private handleHover() {
-    // TODO:
-    // engine().audio.sfx.play("main/sounds/sfx-hover.wav");
+    if (this._enabled) engine().audio.sfx.play("menu/sounds/sfx-hover.wav");
   }
 
   private handleDown() {
-    // TODO:
-    //engine().audio.sfx.play("main/sounds/sfx-press.wav");
+    if (this._enabled) engine().audio.sfx.play("menu/sounds/sfx-press.wav");
   }
 }
