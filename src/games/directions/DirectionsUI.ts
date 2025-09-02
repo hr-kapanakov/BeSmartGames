@@ -96,16 +96,20 @@ export class DirectionUI {
         textOffset: { x: 0, y: -3 },
       },
       "↺",
-      DirectionUI.ButtonSize,
-      DirectionUI.ButtonSize,
+      DirectionUI.ButtonSize * 0.8,
+      DirectionUI.ButtonSize * 0.8,
       false,
       false,
     );
     this.resetButton.onPress.connect(() => {
       this.game.directions = [];
-      this.scrollBox.removeItems();
+      // remove all but first
+      while (this.scrollBox.items.length > 1) this.scrollBox.removeItem(1);
+      this.game.stopGame();
     });
     this.container.addChild(this.resetButton);
+
+    // TODO: level number, settings?, points
   }
 
   public resize(width: number, height: number): void {
@@ -141,7 +145,7 @@ export class DirectionUI {
 
     this.resetButton.position.set(
       width * 0.01 + DirectionUI.ButtonSize / 2 + 3,
-      height * 0.2 + this.scrollBox.height + DirectionUI.ButtonSize,
+      height * 0.2 + this.scrollBox.height + DirectionUI.ButtonSize * 0.8,
     );
   }
 
@@ -163,6 +167,9 @@ export class DirectionUI {
   }
 
   private addDirection(direction: Direction) {
+    // if game started not allow adding directions
+    if (this.game.currDirIdx >= 0) return;
+
     this.game.directions.push(direction);
     const dirStr = Direction[direction];
     const dirButton = new Sprite({
@@ -175,6 +182,9 @@ export class DirectionUI {
     this.scrollBox.scrollBottom();
 
     dirButton.on("pointerdown", () => {
+      // if game started not allow removing directions
+      if (this.game.currDirIdx >= 0) return;
+
       const idx = this.scrollBox.items.indexOf(dirButton as never);
       this.game.directions.splice(idx - 1, 1);
       this.scrollBox.removeItem(idx);

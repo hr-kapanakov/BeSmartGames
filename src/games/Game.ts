@@ -8,6 +8,8 @@ export class Level {
   constructor(init?: Partial<Level>) {
     Object.assign(this, init);
   }
+
+  public init() { }
 }
 
 export interface IGame {
@@ -25,10 +27,14 @@ export class Game<L extends Level> implements IGame {
   protected container!: Container;
 
   public levels: L[] = [];
-  public currentLevel!: L;
+  public currLevelIdx = -1;
 
-  public get name(): string {
+  public get name() {
     return this.constructor.name.replace("Game", "");
+  }
+
+  public get currentLevel() {
+    return this.levels[this.currLevelIdx];
   }
 
   public setup() {}
@@ -41,7 +47,9 @@ export class Game<L extends Level> implements IGame {
 
   public init(container: Container, levelIndex: number) {
     this.container = container;
-    this.currentLevel = this.levels[levelIndex - 1];
+    this.currLevelIdx = levelIndex;
+    this.currentLevel.unlocked = true;
+    this.currentLevel.init();
     this.initLevel();
   }
 

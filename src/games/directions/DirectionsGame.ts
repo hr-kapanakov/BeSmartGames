@@ -1,8 +1,9 @@
-import { AnimatedSprite, Container, Sprite, Texture } from "pixi.js";
+import { AnimatedSprite, Container, Sprite, Texture, Ticker } from "pixi.js";
 import { Game } from "../Game";
 import { DirectionsLevel, TileType } from "./DirectionsLavel";
 import { Direction } from "../Utils";
 import { DirectionUI } from "./DirectionsUI";
+import { engine } from "../../app/getEngine";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
   private static walkFramesCount = 8;
@@ -10,10 +11,14 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   private background!: Sprite;
   /** Tiles */
   private fieldContainer!: Container;
+  private robotSprite!: AnimatedSprite;
 
   private ui!: DirectionUI;
 
   public directions: Direction[] = [];
+  public currDirIdx = -1;
+
+  private previousTileIdx = { x: -1, y: -1 };
 
   constructor() {
     super();
@@ -46,26 +51,22 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         this.fieldContainer.addChild(sprite);
       }
     }
-    this.fieldContainer.addChild(this.getFinishSprite());
 
-    // TODO: robot
-    this.fieldContainer.addChild(
-      new AnimatedSprite({
-        textures: new Array(DirectionsGame.walkFramesCount)
-          .fill(null)
-          .map((_, i) => Texture.from(`robot_walk_${i}.png`)),
-        x: this.currentLevel.start.x * 64,
-        y: this.currentLevel.start.y * 64,
-        anchor: 0.5,
-        rotation: 0,
-        animationSpeed: 0.1,
-        autoPlay: true,
-      }),
-    );
+    this.addRobot();
+    // finish after robot
+    this.addFinishSprite();
+
+    // TODO: level hints?
+
+    //this.fieldContainer.interactive = true;
+    //this.fieldContainer.on("pointerdown", () => (this.started = false));
     this.container.addChild(this.fieldContainer);
 
     // UI
     this.ui = new DirectionUI(this, this.container);
+
+    // TODO: remove?
+    engine().ticker.add((ticker) => this.update(ticker));
   }
 
   public resize(width: number, height: number): void {
@@ -82,30 +83,148 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.ui.resize(width, height);
   }
 
-  private getFinishSprite() {
-    const level = this.currentLevel as DirectionsLevel;
-    let x = level.finish.x * 64;
-    let y = level.finish.y * 64;
+  private addFinishSprite() {
+    let x = this.currentLevel.finish.x * 64;
+    let y = this.currentLevel.finish.y * 64;
     let rotation = 0;
-    if (level.finishDirection == Direction.Up) {
+    if (this.currentLevel.finishDirection == Direction.Up) {
       rotation = -Math.PI / 2;
       y += 32;
-    } else if (level.finishDirection == Direction.Right) {
+    } else if (this.currentLevel.finishDirection == Direction.Right) {
       x -= 32;
-    } else if (level.finishDirection == Direction.Down) {
+    } else if (this.currentLevel.finishDirection == Direction.Down) {
       rotation = Math.PI / 2;
       y -= 32;
-    } else if (level.finishDirection == Direction.Left) {
+    } else if (this.currentLevel.finishDirection == Direction.Left) {
       rotation = Math.PI;
       x += 32;
     }
 
-    return new Sprite({
-      texture: Texture.from("finish.png"),
-      x: x,
-      y: y,
+    this.fieldContainer.addChild(
+      new Sprite({
+        texture: Texture.from("finish.png"),
+        x: x,
+        y: y,
+        anchor: 0.5,
+        rotation: rotation,
+      }),
+    );
+  }
+
+  private addRobot() {
+    this.robotSprite = new AnimatedSprite({
+      textures: new Array(DirectionsGame.walkFramesCount)
+        .fill(null)
+        .map((_, i) => Texture.from(`robot_walk_${i}.png`)),
       anchor: 0.5,
-      rotation: rotation,
+      cursor: "pointer",
     });
+    this.fieldContainer.addChild(this.robotSprite);
+
+    this.robotSprite.interactive = true;
+    this.robotSprite.on("pointerdown", () => (this.currDirIdx = 0)); // TODO: remove started -> add/remove ticker
+    this.stopGame();
+  }
+
+  public stopGame() {
+    this.currDirIdx = -1;
+    this.previousTileIdx = this.currentLevel.start;
+
+    if (this.currentLevel.startDirection == Direction.Up) {
+      this.robotSprite.rotation = -Math.PI / 2;
+    } else if (this.currentLevel.startDirection == Direction.Right) {
+      this.robotSprite.rotation = 0;
+    } else if (this.currentLevel.startDirection == Direction.Down) {
+      this.robotSprite.rotation = Math.PI / 2;
+    } else if (this.currentLevel.startDirection == Direction.Left) {
+      this.robotSprite.rotation = Math.PI;
+    }
+    this.robotSprite.position.set(
+      this.currentLevel.start.x * 64,
+      this.currentLevel.start.y * 64,
+    );
+    this.robotSprite.scale = 1;
+    // TODO: remove points?
+  }
+
+  private updateDelta = 0;
+  private update(ticker: Ticker) {
+    if (this.currDirIdx < 0) return;
+
+    this.updateDelta += ticker.deltaTime;
+    if (this.updateDelta < 5) return;
+    this.updateDelta = 0;
+
+    // walk cycle
+    this.robotSprite.currentFrame =
+      (this.robotSprite.currentFrame + 1) % DirectionsGame.walkFramesCount;
+
+    // robot movement
+    const deltaPos = { x: 0, y: 0 };
+    if (this.robotSprite.rotation == -Math.PI / 2) {
+      // Up
+      deltaPos.y = -1;
+    } else if (this.robotSprite.rotation == 0)
+      // Right
+      deltaPos.x = 1;
+    else if (this.robotSprite.rotation == Math.PI / 2) {
+      // Down
+      deltaPos.y = 1;
+    } else if (this.robotSprite.rotation == Math.PI) {
+      // Left
+      deltaPos.x = -1;
+    }
+    this.robotSprite.position.x += deltaPos.x * 10;
+    this.robotSprite.position.y += deltaPos.y * 10;
+
+    // current tile
+    const tileIdx = {
+      x: Math.round((this.robotSprite.x - deltaPos.x * 32) / 64),
+      y: Math.round((this.robotSprite.y - deltaPos.y * 27) / 64),
+    };
+    const tile = this.currentLevel.tiles[tileIdx.y][tileIdx.x];
+
+    // robot fall
+    if (tile == TileType.None) {
+      this.robotSprite.scale = this.robotSprite.scale.x - 0.1;
+      if (this.robotSprite.scale.x < 0.1) this.stopGame();
+    }
+
+    // finish
+    if (
+      this.previousTileIdx.x == this.currentLevel.finish.x &&
+      this.previousTileIdx.y == this.currentLevel.finish.y
+    ) {
+      console.log("finish") // TODO: popup with points?
+      this.stopGame();
+      this.directions = [];
+
+      const size = this.background.getSize();
+      this.container.removeChildren();
+      this.init(this.container, this.currLevelIdx + 1);
+      this.resize(size.width, size.height);
+    }
+
+    const previousTile =
+      this.currentLevel.tiles[this.previousTileIdx.y][this.previousTileIdx.x];
+    this.previousTileIdx = tileIdx;
+
+    // if tile type change and the new one is not straight
+    if (tile != previousTile && tile != TileType.X && tile != TileType.Y) {
+      // set new direction
+      const newDir = this.directions[this.currDirIdx];
+      if (newDir) {
+        if (newDir == Direction.Up) {
+          this.robotSprite.rotation = -Math.PI / 2;
+        } else if (newDir == Direction.Right) {
+          this.robotSprite.rotation = 0;
+        } else if (newDir == Direction.Down) {
+          this.robotSprite.rotation = Math.PI / 2;
+        } else if (newDir == Direction.Left) {
+          this.robotSprite.rotation = Math.PI;
+        }
+        this.currDirIdx++;
+      }
+    }
   }
 }

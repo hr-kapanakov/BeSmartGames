@@ -25,10 +25,8 @@ export class DirectionsLevel extends Level {
   public start!: Point;
   public finish!: Point;
 
-  constructor(init?: Partial<Level>) {
-    super(init);
-
-    if (this.index != 1) return; // TODO: remove
+  init() {
+    if (this.index > 9) return; // TODO: remove
 
     const data = engine().renderer.extract.pixels(
       Texture.from(`level${this.index}.png`),

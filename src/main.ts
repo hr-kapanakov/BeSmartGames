@@ -28,7 +28,7 @@ setEngine(engine);
   //await engine.navigation.showScreen(LevelSelectionScreen, "Directions");
   await engine.navigation.showScreen(
     GameScreen,
-    ["Directions", 1],
+    ["Directions", 0],
     ["Directions".toLowerCase()],
   );
 })();
