@@ -1,4 +1,12 @@
-import { AnimatedSprite, Container, Sprite, Texture, Ticker } from "pixi.js";
+import {
+  AnimatedSprite,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  Texture,
+  Ticker,
+} from "pixi.js";
 import { Game } from "../Game";
 import { DirectionsLevel, TileType } from "./DirectionsLavel";
 import { Direction } from "../Utils";
@@ -59,6 +67,8 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       }
     }
 
+    if (this.currLevelIdx == 0) this.addHints();
+
     this.addRobot();
     // finish after robot
     this.addFinishSprite();
@@ -81,6 +91,53 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     );
 
     this.ui.resize(width, height);
+  }
+
+  private addHints() {
+    // up
+    const upPosition = { x: 7 * 64 - 4, y: 7 * 64 - 4 };
+    this.fieldContainer.addChild(
+      new Graphics().circle(upPosition.x, upPosition.y, 12).fill("3AA751"),
+    );
+    this.fieldContainer.addChild(
+      new Text({
+        text: "⇧",
+        x: upPosition.x,
+        y: upPosition.y,
+        anchor: 0.5,
+        style: { fill: "white", fontWeight: "bold", fontSize: 18 },
+      }),
+    );
+
+    // left
+    const leftPosition = { x: 7 * 64 - 4, y: 2 * 64 + 4 };
+    this.fieldContainer.addChild(
+      new Graphics().circle(leftPosition.x, leftPosition.y, 12).fill("B9C021"),
+    );
+    this.fieldContainer.addChild(
+      new Text({
+        text: "⇦",
+        x: leftPosition.x,
+        y: leftPosition.y - 1,
+        anchor: 0.5,
+        style: { fill: "white", fontWeight: "bold", fontSize: 18 },
+      }),
+    );
+  }
+
+  private addRobot() {
+    this.robotSprite = new AnimatedSprite({
+      textures: new Array(DirectionsGame.walkFramesCount)
+        .fill(null)
+        .map((_, i) => Texture.from(`robot_walk_${i}.png`)),
+      anchor: 0.5,
+      cursor: "pointer",
+    });
+    this.fieldContainer.addChild(this.robotSprite);
+
+    this.robotSprite.interactive = true;
+    this.robotSprite.on("pointerdown", () => this.startGame());
+    this.stopGame();
   }
 
   private addFinishSprite() {
@@ -109,21 +166,6 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         rotation: rotation,
       }),
     );
-  }
-
-  private addRobot() {
-    this.robotSprite = new AnimatedSprite({
-      textures: new Array(DirectionsGame.walkFramesCount)
-        .fill(null)
-        .map((_, i) => Texture.from(`robot_walk_${i}.png`)),
-      anchor: 0.5,
-      cursor: "pointer",
-    });
-    this.fieldContainer.addChild(this.robotSprite);
-
-    this.robotSprite.interactive = true;
-    this.robotSprite.on("pointerdown", () => this.startGame());
-    this.stopGame();
   }
 
   private callback = (t: Ticker) => this.update(t);
