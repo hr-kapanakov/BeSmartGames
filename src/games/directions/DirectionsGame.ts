@@ -213,7 +213,6 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.previousTileIdx.x == this.currentLevel.finish.x &&
       this.previousTileIdx.y == this.currentLevel.finish.y
     ) {
-      // TODO: save?
       this.stopGame();
       this.currentLevel.points = this.points;
       await engine().navigation.presentPopup(MenuPopup, [
@@ -221,6 +220,8 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         this.currentLevel.points,
         this.name,
       ]);
+      this.levels[this.currLevelIdx + 1].unlocked = true;
+      this.save();
 
       setTimeout(async () => {
         await engine().navigation.dismissPopup();

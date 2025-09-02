@@ -101,7 +101,7 @@ export class LevelSelectionScreen extends Container {
           iconOffset: { x: 50, y: 50 },
           defaultIconScale: 0.5,
         },
-        idx % 10 == 9 ? "?" : (idx + 1).toString(),
+        (idx + 1).toString(),
         150,
         150,
         levels[idx].unlocked,

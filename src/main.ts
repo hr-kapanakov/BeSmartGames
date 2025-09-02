@@ -30,8 +30,8 @@ setEngine(engine);
   document.onkeydown = onKeyDown;
 
   // Show the main menu
-  //await engine.navigation.showScreen(MainMenuScreen);
-  await engine.navigation.showScreen(LevelSelectionScreen, "Directions");
+  await engine.navigation.showScreen(MainMenuScreen);
+  //await engine.navigation.showScreen(LevelSelectionScreen, "Directions");
   /*await engine.navigation.showScreen(
     GameScreen,
     ["Directions", 0],

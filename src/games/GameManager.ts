@@ -2,7 +2,7 @@ import { DirectionsGame } from "./directions/DirectionsGame";
 import { IGame } from "./Game";
 
 export class GameManager {
-  private games: IGame[] = [new DirectionsGame()];
+  public games: IGame[] = [new DirectionsGame()];
 
   constructor() {
     this.initGames();
@@ -14,8 +14,6 @@ export class GameManager {
       game.setup();
     }
   }
-
-  // TODO: load/save to json file
 
   public game(name: string): IGame | null {
     return this.games.find((g) => g.name == name) || null;

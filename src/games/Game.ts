@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Container } from "pixi.js";
+import { storage } from "../engine/utils/storage";
 
 export class Level {
   public index = 0;
@@ -20,6 +21,8 @@ export interface IGame {
   setup(): void;
   load(): void;
   save(): void;
+  loadJson(json: unknown): void;
+  saveJson(): Record<string, unknown>;
   init(container: Container, levelIndex: number): void;
   resize(_width: number, _height: number): void;
 }
@@ -42,15 +45,36 @@ export class Game<L extends Level> implements IGame {
   public setup() {}
 
   public load() {
-    // TODO: load unlocked levels, points, etc.
+    const json = storage.getObject(this.name);
+    if (json) this.loadJson(json as never);
   }
 
-  public save() {}
+  public save() {
+    const json = this.saveJson();
+    if (json) storage.setObject(this.name, json);
+  }
+
+  public loadJson(json: never) {
+    const jsonLevels = json["levels"] as Level[];
+    for (let i = 0; i < jsonLevels.length; i++) {
+      this.levels[i].unlocked = jsonLevels[i].unlocked;
+      this.levels[i].points = jsonLevels[i].points;
+    }
+  }
+
+  public saveJson(): Record<string, unknown> {
+    const jsonLevels = [];
+    for (const l of this.levels) {
+      jsonLevels.push(
+        new Level({ index: l.index, unlocked: l.unlocked, points: l.points }),
+      );
+    }
+    return { levels: jsonLevels };
+  }
 
   public init(container: Container, levelIndex: number) {
     this.container = container;
     this.currLevelIdx = levelIndex;
-    this.currentLevel.unlocked = true;
     this.currentLevel.init();
     this.initLevel();
   }
