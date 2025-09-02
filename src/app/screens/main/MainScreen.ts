@@ -5,7 +5,7 @@ import type { Ticker } from "pixi.js";
 import { Container } from "pixi.js";
 
 import { engine } from "../../getEngine";
-import { PausePopup } from "../../popups/PausePopup";
+import { MenuPopup } from "../../popups/MenuPopup";
 import { SettingsPopup } from "../../popups/SettingsPopup";
 import { Button } from "../../ui/Button";
 
@@ -51,7 +51,7 @@ export class MainScreen extends Container {
       animations: buttonAnimations,
     });
     this.pauseButton.onPress.connect(() =>
-      engine().navigation.presentPopup(PausePopup),
+      engine().navigation.presentPopup(MenuPopup),
     );
     this.addChild(this.pauseButton);
 
@@ -149,7 +149,7 @@ export class MainScreen extends Container {
   /** Auto pause the app when window go out of focus */
   public blur() {
     if (!engine().navigation.currentPopup) {
-      engine().navigation.presentPopup(PausePopup);
+      engine().navigation.presentPopup(MenuPopup);
     }
   }
 }
