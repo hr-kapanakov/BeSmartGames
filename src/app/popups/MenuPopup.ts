@@ -23,7 +23,9 @@ export class MenuPopup extends Container {
   private continueButton: Button;
   private homeButton: Button;
 
-  constructor(args: unknown = null) {
+  private gameName?: string;
+
+  constructor() {
     super();
 
     this.bg = new Sprite(Texture.WHITE);
@@ -38,7 +40,7 @@ export class MenuPopup extends Container {
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
-      text: args[0], 
+      text: "",
       style: { fill: "white", fontSize: 50 },
     });
     this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
@@ -53,7 +55,7 @@ export class MenuPopup extends Container {
         defaultIconScale: 0.7,
         iconOffset: { x: 20 },
       },
-      `${args[1]}`,
+      "-",
       112,
       64,
       false,
@@ -91,9 +93,15 @@ export class MenuPopup extends Container {
     this.homeButton.y = this.panelBase.boxHeight * 0.5 - 78;
     this.homeButton.onPress.connect(async () => {
       await engine().navigation.dismissPopup();
-      await engine().navigation.showScreen(LevelSelectionScreen, args[2]);
+      await engine().navigation.showScreen(LevelSelectionScreen, this.gameName);
     });
     this.panel.addChild(this.homeButton);
+  }
+
+  public init(params: unknown[]) {
+    this.title.text = `${params[0]}`;
+    this.stars.textLabel.text = `${params[1]}`;
+    this.gameName = `${params[2]}`;
   }
 
   /** Resize the popup, fired whenever window size changes */

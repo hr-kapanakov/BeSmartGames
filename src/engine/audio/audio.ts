@@ -44,6 +44,20 @@ export class BGM {
     );
   }
 
+  /** Fading out and stopping the current played music, if there is one */
+  public async stop() {
+    // Fade out then stop current music
+    if (!this.current) return;
+
+    const current = this.current;
+    animate(current, { volume: 0 }, { duration: 1, ease: "linear" }).then(
+      () => {
+        current.stop();
+        this.currentAlias = "";
+      },
+    );
+  }
+
   /** Get background music volume */
   public getVolume() {
     return this.volume;

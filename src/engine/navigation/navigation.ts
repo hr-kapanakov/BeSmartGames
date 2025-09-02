@@ -5,6 +5,7 @@ import type { CreationEngine } from "../engine";
 
 /** Interface for app screens */
 interface AppScreen extends Container {
+  init?(params: unknown): void;
   /** Show the screen */
   show?(): Promise<void>;
   /** Hide the screen */
@@ -32,7 +33,6 @@ interface AppScreen extends Container {
 /** Interface for app screens constructors */
 interface AppScreenConstructor {
   new (): AppScreen;
-  new (data: unknown): AppScreen;
   /** List of assets bundles required by the screen */
   assetBundles?: string[];
 }
@@ -194,8 +194,11 @@ export class Navigation {
       await this.hideAndRemoveScreen(this.currentPopup);
     }
 
-    this.currentPopup = new ctor(data);
+    this.currentPopup = new ctor();
+    this.currentPopup.init?.(data);
     await this.addAndShowScreen(this.currentPopup);
+
+    if (this.app.audio.bgm.current) this.app.audio.bgm.current.volume *= 0.5; // lower the music volume
   }
 
   /**
@@ -210,6 +213,8 @@ export class Navigation {
       this.currentScreen.interactiveChildren = true;
       this.currentScreen.resume?.();
     }
+
+    if (this.app.audio.bgm.current) this.app.audio.bgm.current.volume *= 2; // reset the music volume
   }
 
   /**

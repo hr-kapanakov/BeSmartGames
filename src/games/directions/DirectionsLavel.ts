@@ -26,7 +26,6 @@ export class DirectionsLevel extends Level {
   public finish!: Point;
 
   init() {
-    this.points = 3;
     this.tiles = [];
 
     const data = engine().renderer.extract.pixels(

@@ -18,6 +18,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
   public directions: Direction[] = [];
   public currDirIdx = -1;
+  public points = -1;
 
   private previousTileIdx = { x: -1, y: -1 };
 
@@ -33,6 +34,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   public initLevel(): void {
     this.stopGame();
     this.directions = [];
+    this.points = 3;
     this.container.removeChildren();
 
     this.background = new Sprite({
@@ -201,7 +203,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.robotSprite.scale = this.robotSprite.scale.x - 0.15;
       if (this.robotSprite.scale.x < 0.1) {
         this.stopGame();
-        this.currentLevel.points = Math.max(0, this.currentLevel.points - 1);
+        this.points = Math.max(0, this.points - 1);
         this.ui.update();
       }
     }
@@ -213,6 +215,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     ) {
       // TODO: save?
       this.stopGame();
+      this.currentLevel.points = this.points;
       await engine().navigation.presentPopup(MenuPopup, [
         `Level ${this.currLevelIdx + 1}`,
         this.currentLevel.points,

@@ -118,7 +118,24 @@ export class LevelSelectionScreen extends Container {
           );
         });
       }
-      // TODO: points of played levels
+      if (levels[idx].points >= 0) {
+        button.iconOffset = { y: 50 };
+        button.iconView = new Button(
+          {
+            defaultView: "rounded-box.png",
+            nineSliceSprite: [64, 64, 64, 64],
+            textOffset: { x: -25, y: 0 },
+            icon: "stars.png",
+            defaultIconScale: 0.7,
+            iconOffset: { x: 20 },
+          },
+          `${levels[idx].points}`,
+          112,
+          64,
+          false,
+          false,
+        );
+      }
 
       this.levelButtons.push(button);
       this.addChild(button);
@@ -143,6 +160,10 @@ export class LevelSelectionScreen extends Container {
     }
 
     this.title.position.set(width * 0.9, height * 0.93);
+  }
+
+  public async show() {
+    engine().audio.bgm.stop();
   }
 
   /** Hide screen with animations */

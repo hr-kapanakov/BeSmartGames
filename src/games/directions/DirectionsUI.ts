@@ -61,7 +61,7 @@ export class DirectionUI {
         defaultIconScale: 0.7,
         iconOffset: { x: -20 },
       },
-      `${this.game.currentLevel.points}`,
+      `${this.game.points}`,
       112,
       64,
       false,
@@ -103,7 +103,7 @@ export class DirectionUI {
     this.homeButton.onPress.connect(() =>
       engine().navigation.presentPopup(MenuPopup, [
         `Level ${this.game.currLevelIdx + 1}`,
-        this.game.currentLevel.points,
+        this.game.points,
         this.game.name,
       ]),
     );
@@ -254,7 +254,7 @@ export class DirectionUI {
   }
 
   public update() {
-    this.levelPoints.textLabel.text = `${this.game.currentLevel.points}`;
+    this.levelPoints.textLabel.text = `${this.game.points}`;
     const scrollItem = this.scrollBox.items[this.game.currDirIdx];
     if (scrollItem) {
       scrollItem.scale = 0.8;
