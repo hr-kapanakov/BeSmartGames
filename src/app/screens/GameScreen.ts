@@ -8,7 +8,7 @@ export class GameScreen extends Container {
   /** Assets bundles required by this screen */
   public static assetBundles = ["menu"];
 
-  private game!: IGame | null;
+  public game!: IGame | null;
 
   constructor() {
     super();
@@ -26,6 +26,7 @@ export class GameScreen extends Container {
 
   /** Show screen with animations */
   public async show() {
+    // TODO: more sounds
     engine().audio.bgm.play("menu/sounds/bgm-main.mp3", { volume: 0.5 });
     this.alpha = 1;
   }

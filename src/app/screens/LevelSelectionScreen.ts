@@ -6,17 +6,25 @@ import { Button } from "../ui/Button";
 import { engine } from "../getEngine";
 import { LoadScreen } from "./LoadScreen";
 import { GameScreen } from "./GameScreen";
+import { MainMenuScreen } from "./MainMenuScreen";
 
 /** Screen show level selection */
 export class LevelSelectionScreen extends Container {
   /** Assets bundles required by this screen */
-  public static assetBundles = ["menu"];
+  public static assetBundles = ["default", "menu"];
   /** Background */
   private background: Sprite;
   /** Label */
+  private gameNameLabel: Button;
   private selectLevelLabel: Sprite;
-  /** Buttons */
+  /** Exit button */
+  private exitButton: Button;
+  /** Level buttons */
   private levelButtons: Button[];
+  /** Title */
+  private title: Sprite;
+
+  public gameName!: string;
 
   constructor() {
     super();
@@ -25,6 +33,21 @@ export class LevelSelectionScreen extends Container {
     });
     this.addChildAt(this.background, 0);
 
+    this.gameNameLabel = new Button(
+      {
+        defaultView: "circle.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        textOffset: { y: -5 },
+      },
+      "",
+      320,
+      96,
+      false,
+      false,
+    );
+    this.gameNameLabel.enabled = false;
+    this.addChild(this.gameNameLabel);
+
     this.selectLevelLabel = new Sprite({
       texture: Texture.from("label-select-level.png"),
       anchor: 0.5,
@@ -32,10 +55,41 @@ export class LevelSelectionScreen extends Container {
     });
     this.addChild(this.selectLevelLabel);
 
+    // home button
+    this.exitButton = new Button(
+      {
+        defaultView: "circle.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        anchor: 0.5,
+        icon: "icon-door.png",
+      },
+      "",
+      64,
+      64,
+    );
+    this.exitButton.onPress.connect(() =>
+      engine().navigation.showScreen(MainMenuScreen),
+    );
+    this.addChild(this.exitButton);
+
     this.levelButtons = [];
+
+    this.title = new Sprite({
+      texture: Texture.from("title.png"),
+      anchor: 0.5,
+      scale: 0.25,
+      tint: "#dddddd",
+    });
+    this.addChild(this.title);
   }
 
   init(gameName: string) {
+    this.gameName = gameName;
+    this.gameNameLabel.textLabel.text = gameName;
+
+    this.levelButtons.forEach((b) => this.removeChild(b));
+    this.levelButtons = [];
+
     const levels = gameMgr().game(gameName)?.levels || [];
     for (let idx = 0; idx < levels.length; idx++) {
       const button = new Button(
@@ -64,6 +118,7 @@ export class LevelSelectionScreen extends Container {
           );
         });
       }
+      // TODO: points of played levels
 
       this.levelButtons.push(button);
       this.addChild(button);
@@ -74,24 +129,27 @@ export class LevelSelectionScreen extends Container {
   public resize(width: number, height: number) {
     this.background.setSize(width, height);
 
+    this.gameNameLabel.position.set(width * 0.5, height * 0.05);
     this.selectLevelLabel.position.set(width * 0.5, height * 0.15);
+    this.exitButton.position.set(
+      width * 0.99 - this.exitButton.width / 2,
+      height * 0.05,
+    );
 
     for (let idx = 0; idx < this.levelButtons.length; idx++) {
       this.levelButtons[idx].position.x = width * 0.5 - 300 + (idx % 5) * 150;
       this.levelButtons[idx].position.y =
         height * 0.35 + Math.floor(idx / 5) * 150;
     }
+
+    this.title.position.set(width * 0.9, height * 0.93);
   }
-  /** Show screen with animations */
-  public async show() {
-    this.alpha = 1;
-  }
+
   /** Hide screen with animations */
   public async hide() {
     await animate(this, { alpha: 0 } as ObjectTarget<this>, {
-      duration: 0.3,
-      ease: "linear",
-      delay: 1,
+      duration: 0.5,
+      ease: "easeIn",
     });
   }
 

@@ -26,8 +26,8 @@ export class DirectionsLevel extends Level {
   public finish!: Point;
 
   init() {
-    // TODO: random level %10
     this.points = 3;
+    this.tiles = [];
 
     const data = engine().renderer.extract.pixels(
       Texture.from(`level${this.index}.png`),

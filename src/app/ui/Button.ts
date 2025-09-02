@@ -10,6 +10,10 @@ import { engine } from "../getEngine";
 export class Button extends FancyButton {
   private _enabled = true;
 
+  public get textLabel() {
+    return this.textView as Label;
+  }
+
   constructor(
     options: Partial<ButtonOptions> = {},
     text = "",

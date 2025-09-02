@@ -2,6 +2,8 @@ import { Container, Sprite, Texture } from "pixi.js";
 import { Button } from "../ui/Button";
 import { engine } from "../getEngine";
 import { LevelSelectionScreen } from "./LevelSelectionScreen";
+import { animate } from "motion";
+import { ObjectTarget } from "motion/react";
 
 /** Screen show main menu */
 export class MainMenuScreen extends Container {
@@ -13,7 +15,7 @@ export class MainMenuScreen extends Container {
   private title: Sprite;
   /** Buttons */
   private directionsButton: Button;
-  private settingsButton: Button;
+  //private settingsButton: Button;
 
   constructor() {
     super();
@@ -30,9 +32,16 @@ export class MainMenuScreen extends Container {
     });
     this.addChild(this.title);
 
-    // TODO: auto get games
-    // TODO: add icon
-    this.directionsButton = new Button({}, "Directions", 450, 125);
+    this.directionsButton = new Button(
+      {
+        icon: "directions-icon.png",
+        iconOffset: { x: -130, y: -7 },
+        textOffset: { x: 40, y: -7 },
+      },
+      "Directions",
+      450,
+      125,
+    );
     this.directionsButton.onPress.connect(
       async () =>
         await engine().navigation.showScreen(
@@ -42,17 +51,16 @@ export class MainMenuScreen extends Container {
     );
     this.addChild(this.directionsButton);
 
-    this.settingsButton = new Button(
+    /*this.settingsButton = new Button(
       { defaultView: "button-orange.png" },
       "Settings",
       450,
       125,
     );
-    // TODO:
-    //this.settingsButton.onPress.connect(() =>
-    //  engine().navigation.presentPopup(PausePopup),
-    //);
-    this.addChild(this.settingsButton);
+    this.settingsButton.onPress.connect(() =>
+      engine().navigation.presentPopup(PausePopup),
+    );
+    this.addChild(this.settingsButton);*/
   }
 
   /** Resize the screen, fired whenever window size changes  */
@@ -62,6 +70,23 @@ export class MainMenuScreen extends Container {
     this.title.position.set(width * 0.5, height * 0.2);
 
     this.directionsButton.position.set(width * 0.5, height * 0.45);
-    this.settingsButton.position.set(width * 0.5, height * 0.45 + 150);
+    //this.settingsButton.position.set(width * 0.5, height * 0.45 + 150);
+  }
+
+  /** Show screen with animations */
+  public async show() {
+    this.alpha = 0;
+    await animate(this, { alpha: 1 } as ObjectTarget<this>, {
+      duration: 0.5,
+      ease: "easeIn",
+    });
+  }
+
+  /** Hide screen with animations */
+  public async hide() {
+    await animate(this, { alpha: 0 } as ObjectTarget<this>, {
+      duration: 0.5,
+      ease: "easeIn",
+    });
   }
 }

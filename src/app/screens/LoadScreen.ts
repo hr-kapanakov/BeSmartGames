@@ -73,16 +73,11 @@ export class LoadScreen extends Container {
     this.loadingLabel.position.set(width * 0.5, height * 0.75);
   }
 
-  /** Show screen with animations */
-  public async show() {
-    this.alpha = 1;
-  }
-
   /** Hide screen with animations */
   public async hide() {
     await animate(this, { alpha: 0 } as ObjectTarget<this>, {
       duration: 0.3,
-      ease: "linear",
+      ease: "easeIn",
       delay: 1,
     });
   }

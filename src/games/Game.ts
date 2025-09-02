@@ -15,6 +15,7 @@ export class Level {
 
 export interface IGame {
   levels: Level[];
+  currLevelIdx: number;
   get name(): string;
   setup(): void;
   load(): void;

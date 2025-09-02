@@ -16,12 +16,12 @@ export class SettingsPopup extends Container {
   private bg: Sprite;
   /** Container for the popup UI components */
   private panel: Container;
+  /** The panel background */
+  private panelBase: RoundedBox;
   /** The popup title label */
   private title: Text;
   /** Button that closes the popup */
   private doneButton: Button;
-  /** The panel background */
-  private panelBase: RoundedBox;
   /** The build version label */
   private versionLabel: Text;
   /** Layout that organises the UI components */
@@ -57,8 +57,9 @@ export class SettingsPopup extends Container {
     this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
     this.panel.addChild(this.title);
 
-    this.doneButton = new Button({}, "OK", 250, 96);
-    this.doneButton.y = this.panelBase.boxHeight * 0.5 - 78;
+    this.doneButton = new Button({ textOffset: { y: 0 } }, "OK", 200, 80);
+    this.doneButton.textLabel.style.fontSize = 30;
+    this.doneButton.y = this.panelBase.boxHeight * 0.5 - 85;
     this.doneButton.onPress.connect(() => engine().navigation.dismissPopup());
     this.panel.addChild(this.doneButton);
 
@@ -70,7 +71,7 @@ export class SettingsPopup extends Container {
       },
     });
     this.versionLabel.alpha = 0.5;
-    this.versionLabel.y = this.panelBase.boxHeight * 0.5 - 15;
+    this.versionLabel.y = this.panelBase.boxHeight * 0.5 - 30;
     this.panel.addChild(this.versionLabel);
 
     this.layout = new List({ type: "vertical", elementsMargin: 4 });

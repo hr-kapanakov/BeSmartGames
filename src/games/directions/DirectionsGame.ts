@@ -4,6 +4,7 @@ import { DirectionsLevel, TileType } from "./DirectionsLavel";
 import { Direction } from "../Utils";
 import { DirectionUI } from "./DirectionsUI";
 import { engine } from "../../app/getEngine";
+import { MenuPopup } from "../../app/popups/MenuPopup";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
   private static walkFramesCount = 8;
@@ -30,6 +31,10 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   }
 
   public initLevel(): void {
+    this.stopGame();
+    this.directions = [];
+    this.container.removeChildren();
+
     this.background = new Sprite({
       texture: Texture.from("background.png"),
       alpha: 0.8,
@@ -56,8 +61,6 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     // finish after robot
     this.addFinishSprite();
 
-    //this.fieldContainer.interactive = true;
-    //this.fieldContainer.on("pointerdown", () => (this.started = false));
     this.container.addChild(this.fieldContainer);
 
     // UI
@@ -137,25 +140,27 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.currDirIdx = -1;
     this.previousTileIdx = this.currentLevel.start;
 
-    if (this.currentLevel.startDirection == Direction.Up) {
-      this.robotSprite.rotation = -Math.PI / 2;
-    } else if (this.currentLevel.startDirection == Direction.Right) {
-      this.robotSprite.rotation = 0;
-    } else if (this.currentLevel.startDirection == Direction.Down) {
-      this.robotSprite.rotation = Math.PI / 2;
-    } else if (this.currentLevel.startDirection == Direction.Left) {
-      this.robotSprite.rotation = Math.PI;
+    if (this.robotSprite) {
+      if (this.currentLevel.startDirection == Direction.Up) {
+        this.robotSprite.rotation = -Math.PI / 2;
+      } else if (this.currentLevel.startDirection == Direction.Right) {
+        this.robotSprite.rotation = 0;
+      } else if (this.currentLevel.startDirection == Direction.Down) {
+        this.robotSprite.rotation = Math.PI / 2;
+      } else if (this.currentLevel.startDirection == Direction.Left) {
+        this.robotSprite.rotation = Math.PI;
+      }
+      this.robotSprite.position.set(
+        this.currentLevel.start.x * 64,
+        this.currentLevel.start.y * 64,
+      );
+      this.robotSprite.currentFrame = 0;
+      this.robotSprite.scale = 1;
     }
-    this.robotSprite.position.set(
-      this.currentLevel.start.x * 64,
-      this.currentLevel.start.y * 64,
-    );
-    this.robotSprite.currentFrame = 0;
-    this.robotSprite.scale = 1;
   }
 
   private updateDelta = 0;
-  private update(ticker: Ticker) {
+  private async update(ticker: Ticker) {
     if (this.currDirIdx < 0) return;
 
     this.updateDelta += ticker.deltaTime;
@@ -193,7 +198,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
     // robot fall
     if (tile == TileType.None) {
-      this.robotSprite.scale = this.robotSprite.scale.x - 0.1;
+      this.robotSprite.scale = this.robotSprite.scale.x - 0.15;
       if (this.robotSprite.scale.x < 0.1) {
         this.stopGame();
         this.currentLevel.points = Math.max(0, this.currentLevel.points - 1);
@@ -206,14 +211,19 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.previousTileIdx.x == this.currentLevel.finish.x &&
       this.previousTileIdx.y == this.currentLevel.finish.y
     ) {
-      console.log("finish"); // TODO: popup with points?
+      // TODO: save?
       this.stopGame();
-      this.directions = [];
+      await engine().navigation.presentPopup(MenuPopup, [
+        `Level ${this.currLevelIdx + 1}`,
+        this.currentLevel.points,
+        this.name,
+      ]);
 
-      const size = this.background.getSize();
-      this.container.removeChildren();
-      this.init(this.container, this.currLevelIdx + 1);
-      this.resize(size.width, size.height);
+      setTimeout(async () => {
+        await engine().navigation.dismissPopup();
+        this.init(this.container, this.currLevelIdx + 1);
+        this.resize(engine().navigation.width, engine().navigation.height);
+      }, 1000);
     }
 
     const previousTile =

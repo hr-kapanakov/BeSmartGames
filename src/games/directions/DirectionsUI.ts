@@ -3,9 +3,9 @@ import { Button } from "../../app/ui/Button";
 import { ScrollBox } from "@pixi/ui";
 import { DirectionsGame } from "./DirectionsGame";
 import { Direction } from "../Utils";
-import { Label } from "../../app/ui/Label";
 import { SettingsPopup } from "../../app/popups/SettingsPopup";
 import { engine } from "../../app/getEngine";
+import { MenuPopup } from "../../app/popups/MenuPopup";
 
 export class DirectionUI {
   private static ButtonSize = 96;
@@ -16,6 +16,10 @@ export class DirectionUI {
   /** Level label */
   private levelLabel: Button;
   private levelPoints: Button;
+  /** Settings button */
+  private settingsButton: Button;
+  /** Home button */
+  private homeButton: Button;
   /** Buttons */
   private upButton: Button;
   private rightButton: Button;
@@ -26,8 +30,6 @@ export class DirectionUI {
   private scrollBoxUpButton: Button;
   private scrollBoxDownButton: Button;
   private resetButton: Button;
-  /** Settings button */
-  private settingsButton: Button;
 
   constructor(game: DirectionsGame, container: Container) {
     this.game = game;
@@ -36,7 +38,7 @@ export class DirectionUI {
     // level info
     this.levelLabel = new Button(
       {
-        defaultView: "button2.png",
+        defaultView: "circle.png",
         nineSliceSprite: [64, 64, 64, 64],
         textOffset: { x: 0, y: -3 },
       },
@@ -46,7 +48,8 @@ export class DirectionUI {
       false,
       false,
     );
-    (this.levelLabel.textView as Label).style.fontSize = 30;
+    this.levelLabel.enabled = false;
+    this.levelLabel.textLabel.style.fontSize = 30;
     this.container.addChild(this.levelLabel);
 
     this.levelPoints = new Button(
@@ -64,8 +67,47 @@ export class DirectionUI {
       false,
       false,
     );
-    (this.levelPoints.textView as Label).style.fontSize = 30;
+    this.levelPoints.enabled = false;
+    this.levelPoints.textLabel.style.fontSize = 30;
     this.container.addChild(this.levelPoints);
+
+    // settings button
+    this.settingsButton = new Button(
+      {
+        defaultView: "circle.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        anchor: 0.5,
+        icon: "icon-settings.png",
+      },
+      "",
+      64,
+      64,
+    );
+    this.settingsButton.onPress.connect(() =>
+      engine().navigation.presentPopup(SettingsPopup),
+    );
+    this.container.addChild(this.settingsButton);
+
+    // home button
+    this.homeButton = new Button(
+      {
+        defaultView: "circle.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        anchor: 0.5,
+        icon: "icon-home.png",
+      },
+      "",
+      64,
+      64,
+    );
+    this.homeButton.onPress.connect(() =>
+      engine().navigation.presentPopup(MenuPopup, [
+        `Level ${this.game.currLevelIdx + 1}`,
+        this.game.currentLevel.points,
+        this.game.name,
+      ]),
+    );
+    this.container.addChild(this.homeButton);
 
     // directions
     this.upButton = this.addDirectionsButton(Direction.Up);
@@ -82,14 +124,15 @@ export class DirectionUI {
       type: "vertical",
       radius: 7,
     });
-    this.scrollBox.addItem(
-      new Sprite({
-        texture: Texture.from("start.png"),
-        width: DirectionUI.ButtonSize,
-        height: DirectionUI.ButtonSize,
-      }),
-    );
     this.container.addChild(this.scrollBox);
+    const startButton = new Sprite({
+      texture: Texture.from("start.png"),
+      width: DirectionUI.ButtonSize,
+      height: DirectionUI.ButtonSize,
+      cursor: "pointer",
+    });
+    startButton.on("pointerdown", () => this.game.startGame());
+    this.scrollBox.addItem(startButton);
 
     // scroll box buttons
     this.scrollBoxUpButton = new Button(
@@ -136,7 +179,7 @@ export class DirectionUI {
 
     this.resetButton = new Button(
       {
-        defaultView: "button2.png",
+        defaultView: "circle.png",
         nineSliceSprite: [64, 64, 64, 64],
         textOffset: { x: 0, y: -3 },
       },
@@ -153,22 +196,6 @@ export class DirectionUI {
       this.game.stopGame();
     });
     this.container.addChild(this.resetButton);
-
-    this.settingsButton = new Button(
-      {
-        defaultView: "button2.png",
-        nineSliceSprite: [64, 64, 64, 64],
-        anchor: 0.5,
-        icon: "icon-settings.png",
-      },
-      "",
-      64,
-      64,
-    );
-    this.settingsButton.onPress.connect(() =>
-      engine().navigation.presentPopup(SettingsPopup),
-    );
-    this.container.addChild(this.settingsButton);
   }
 
   public resize(width: number, height: number): void {
@@ -179,6 +206,15 @@ export class DirectionUI {
     );
     this.levelPoints.position.set(
       width * 0.01 + this.levelPoints.width / 2,
+      height * 0.05,
+    );
+
+    this.settingsButton.position.set(
+      width * 0.99 - this.settingsButton.width * 1.5,
+      height * 0.05,
+    );
+    this.homeButton.position.set(
+      width * 0.99 - this.homeButton.width / 2,
       height * 0.05,
     );
 
@@ -215,16 +251,10 @@ export class DirectionUI {
       width * 0.01 + DirectionUI.ButtonSize / 2 + 3,
       height * 0.2 + this.scrollBox.height + DirectionUI.ButtonSize * 0.8,
     );
-
-    this.settingsButton.position.set(
-      width * 0.99 - this.settingsButton.width / 2,
-      height * 0.05,
-    );
   }
 
   public update() {
-    (this.levelPoints.textView as Label).text =
-      `${this.game.currentLevel.points}`;
+    this.levelPoints.textLabel.text = `${this.game.currentLevel.points}`;
     const scrollItem = this.scrollBox.items[this.game.currDirIdx];
     if (scrollItem) {
       scrollItem.scale = 0.8;

@@ -5,21 +5,25 @@ import { engine } from "../getEngine";
 import { Button } from "../ui/Button";
 import { Label } from "../ui/Label";
 import { RoundedBox } from "../ui/RoundedBox";
+import { LevelSelectionScreen } from "../screens/LevelSelectionScreen";
 
 /** Popup that shows up when gameplay is paused */
-export class PausePopup extends Container {
+export class MenuPopup extends Container {
   /** The dark semi-transparent background covering current screen */
   private bg: Sprite;
   /** Container for the popup UI components */
   private panel: Container;
-  /** The popup title label */
-  private title: Label;
-  /** Button that closes the popup */
-  private doneButton: Button;
   /** The panel background */
   private panelBase: RoundedBox;
+  /** The popup title label */
+  private title: Label;
+  /** Stars */
+  private stars: Button;
+  /** Buttons */
+  private continueButton: Button;
+  private homeButton: Button;
 
-  constructor() {
+  constructor(args: unknown = null) {
     super();
 
     this.bg = new Sprite(Texture.WHITE);
@@ -34,16 +38,62 @@ export class PausePopup extends Container {
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
-      text: "Paused",
-      style: { fill: 0xec1561, fontSize: 50 },
+      text: args[0], 
+      style: { fill: "white", fontSize: 50 },
     });
-    this.title.y = -80;
+    this.title.y = -this.panelBase.boxHeight * 0.5 + 60;
     this.panel.addChild(this.title);
 
-    this.doneButton = new Button({ text: "Resume" });
-    this.doneButton.y = 70;
-    this.doneButton.onPress.connect(() => engine().navigation.dismissPopup());
-    this.panel.addChild(this.doneButton);
+    this.stars = new Button(
+      {
+        defaultView: "rounded-box.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        textOffset: { x: -25, y: 0 },
+        icon: "stars.png",
+        defaultIconScale: 0.7,
+        iconOffset: { x: 20 },
+      },
+      `${args[1]}`,
+      112,
+      64,
+      false,
+      false,
+    );
+    this.stars.y = -20;
+    this.stars.enabled = false;
+    this.panel.addChild(this.stars);
+
+    this.continueButton = new Button(
+      {
+        defaultView: "button-orange.png",
+        icon: "icon-continue.png",
+      },
+      "",
+      160,
+      80,
+    );
+    this.continueButton.x = -80;
+    this.continueButton.y = this.panelBase.boxHeight * 0.5 - 78;
+    this.continueButton.onPress.connect(() =>
+      engine().navigation.dismissPopup(),
+    );
+    this.panel.addChild(this.continueButton);
+
+    this.homeButton = new Button(
+      {
+        icon: "icon-home.png",
+      },
+      "",
+      160,
+      80,
+    );
+    this.homeButton.x = 80;
+    this.homeButton.y = this.panelBase.boxHeight * 0.5 - 78;
+    this.homeButton.onPress.connect(async () => {
+      await engine().navigation.dismissPopup();
+      await engine().navigation.showScreen(LevelSelectionScreen, args[2]);
+    });
+    this.panel.addChild(this.homeButton);
   }
 
   /** Resize the popup, fired whenever window size changes */
