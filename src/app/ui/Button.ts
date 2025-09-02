@@ -4,7 +4,7 @@ import { Label } from "./Label";
 import { DropShadowFilter } from "pixi-filters/drop-shadow";
 
 const defaultButtonOptions = {
-  defaultView: "blue_button.png",
+  defaultView: "button-blue.png",
   text: "",
   width: 400,
   height: 150,

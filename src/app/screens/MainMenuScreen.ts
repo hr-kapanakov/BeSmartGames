@@ -21,7 +21,7 @@ export class MainMenuScreen extends Container {
     super();
 
     this.background = new Sprite({
-      texture: Texture.from("background.png"),
+      texture: Texture.from("background-menu.png"),
     });
     this.addChildAt(this.background, 0);
 
@@ -44,7 +44,7 @@ export class MainMenuScreen extends Container {
     this.addChild(this.directionsButton);
 
     this.settingsButton = new Button({
-      defaultView: "orange_button.png",
+      defaultView: "button-orange.png",
       text: "Settings",
       width: 450,
       height: 125,

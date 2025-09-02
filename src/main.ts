@@ -1,4 +1,5 @@
 import { setEngine } from "./app/getEngine";
+import { LevelSelectionScreen } from "./app/screens/LevelSelectionScreen";
 import { MainMenuScreen } from "./app/screens/MainMenuScreen";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
@@ -24,9 +25,6 @@ setEngine(engine);
   userSettings.init();
 
   // Show the main menu
-  await engine.navigation.showScreen(MainMenuScreen);
-  // Show the load screen
-  //await engine.navigation.showScreen(LoadScreen);
-  // Show the main screen once the load screen is dismissed
-  //await engine.navigation.showScreen(MainScreen);
+  //await engine.navigation.showScreen(MainMenuScreen);
+  await engine.navigation.showScreen(LevelSelectionScreen);
 })();
