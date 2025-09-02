@@ -132,7 +132,11 @@ export class Navigation {
    * Hide current screen (if there is one) and present a new screen.
    * Any class that matches AppScreen interface can be used here.
    */
-  public async showScreen(ctor: AppScreenConstructor) {
+  public async showScreen(
+    ctor: AppScreenConstructor,
+    data: unknown = null,
+    assetBundles: string[] = [],
+  ) {
     // Block interactivity in current screen
     if (this.currentScreen) {
       this.currentScreen.interactiveChildren = false;
@@ -140,8 +144,9 @@ export class Navigation {
 
     // Load assets for the new screen, if available
     if (ctor.assetBundles) {
+      const allAssetBundles = [...assetBundles, ...ctor.assetBundles];
       // Load all assets required by this new screen
-      await Assets.loadBundle(ctor.assetBundles, (progress) => {
+      await Assets.loadBundle(allAssetBundles, (progress) => {
         if (this.currentScreen?.onLoad) {
           this.currentScreen.onLoad(progress * 100);
         }
@@ -158,7 +163,7 @@ export class Navigation {
     }
 
     // Create the new screen and add that to the stage
-    this.currentScreen = BigPool.get(ctor);
+    this.currentScreen = BigPool.get(ctor, data);
     await this.addAndShowScreen(this.currentScreen);
   }
 

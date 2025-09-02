@@ -1,0 +1,35 @@
+import { Container } from "pixi.js";
+import { gameMgr } from "../../games/GameManager";
+import { Game } from "../../games/Game";
+
+/** Game screen */
+export class GameScreen extends Container {
+  /** Assets bundles required by this screen */
+  public static assetBundles = ["menu"];
+
+  private game!: Game | null;
+
+  constructor() {
+    super();
+  }
+
+  public init(params: never[]) {
+    this.game = gameMgr().game(params[0]);
+    this.game?.init(this, params[1]);
+  }
+
+  /** Resize the screen, fired whenever window size changes  */
+  public resize(width: number, height: number) {
+    this.game?.resize(width, height);
+  }
+
+  /** Show screen with animations */
+  public async show() {
+    this.alpha = 1;
+  }
+
+  /** Hide screen with animations */
+  public async hide() {
+    this.alpha = 0;
+  }
+}

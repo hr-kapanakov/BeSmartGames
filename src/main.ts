@@ -1,6 +1,5 @@
 import { setEngine } from "./app/getEngine";
-import { LevelSelectionScreen } from "./app/screens/LevelSelectionScreen";
-import { MainMenuScreen } from "./app/screens/MainMenuScreen";
+import { GameScreen } from "./app/screens/GameScreen";
 import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
 
@@ -26,5 +25,10 @@ setEngine(engine);
 
   // Show the main menu
   //await engine.navigation.showScreen(MainMenuScreen);
-  await engine.navigation.showScreen(LevelSelectionScreen);
+  //await engine.navigation.showScreen(LevelSelectionScreen, "Directions");
+  await engine.navigation.showScreen(
+    GameScreen,
+    ["Directions", 1],
+    ["Directions".toLowerCase()],
+  );
 })();

@@ -32,7 +32,7 @@ export class LoadScreen extends Container {
       fillColor: "#33C7F2",
       radius: 150,
       lineWidth: 15,
-      value: 20,
+      value: 10,
       backgroundAlpha: 0.5,
       fillAlpha: 0.8,
       cap: "round",

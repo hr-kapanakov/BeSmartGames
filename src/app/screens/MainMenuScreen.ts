@@ -1,5 +1,3 @@
-import { animate } from "motion";
-import type { ObjectTarget } from "motion/react";
 import { Container, Sprite, Texture } from "pixi.js";
 import { Button } from "../ui/Button";
 import { engine } from "../getEngine";
@@ -33,22 +31,22 @@ export class MainMenuScreen extends Container {
     this.addChild(this.title);
 
     // TODO: add icon
-    this.directionsButton = new Button({
-      text: "Directions",
-      width: 450,
-      height: 125,
-    });
+    this.directionsButton = new Button({}, "Directions", 450, 125);
     this.directionsButton.onPress.connect(
-      async () => await engine().navigation.showScreen(LevelSelectionScreen),
+      async () =>
+        await engine().navigation.showScreen(
+          LevelSelectionScreen,
+          "Directions",
+        ),
     );
     this.addChild(this.directionsButton);
 
-    this.settingsButton = new Button({
-      defaultView: "button-orange.png",
-      text: "Settings",
-      width: 450,
-      height: 125,
-    });
+    this.settingsButton = new Button(
+      { defaultView: "button-orange.png" },
+      "Settings",
+      450,
+      125,
+    );
     // TODO:
     //this.settingsButton.onPress.connect(() =>
     //  engine().navigation.presentPopup(PausePopup),

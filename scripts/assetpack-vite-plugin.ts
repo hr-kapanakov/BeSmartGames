@@ -10,6 +10,10 @@ export function assetpackPlugin() {
     pipes: [
       ...pixiPipes({
         cacheBust: false,
+        resolutions: { default: 1 },
+        compression: {
+          webp: false,
+        },
         manifest: {
           output: "./src/manifest.json",
         },

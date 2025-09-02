@@ -65,19 +65,11 @@ export class MainScreen extends Container {
     );
     this.addChild(this.settingsButton);
 
-    this.addButton = new Button({
-      text: "Add",
-      width: 175,
-      height: 110,
-    });
+    this.addButton = new Button({}, "Add", 175, 110);
     this.addButton.onPress.connect(() => this.bouncer.add());
     this.addChild(this.addButton);
 
-    this.removeButton = new Button({
-      text: "Remove",
-      width: 175,
-      height: 110,
-    });
+    this.removeButton = new Button({}, "Remove", 175, 110);
     this.removeButton.onPress.connect(() => this.bouncer.remove());
     this.addChild(this.removeButton);
   }
