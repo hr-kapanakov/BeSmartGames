@@ -26,7 +26,6 @@ export class GameScreen extends Container {
 
   /** Show screen with animations */
   public async show() {
-    // TODO: more sounds
     engine().audio.bgm.play("menu/sounds/bgm-main.mp3", { volume: 0.5 });
     this.alpha = 1;
   }

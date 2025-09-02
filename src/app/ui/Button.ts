@@ -86,7 +86,8 @@ export class Button extends FancyButton {
   }
 
   private handleHover() {
-    if (this._enabled) engine().audio.sfx.play("menu/sounds/sfx-hover.wav");
+    if (this._enabled)
+      engine().audio.sfx.play("menu/sounds/sfx-hover.wav", { volume: 0.5 });
   }
 
   private handleDown() {

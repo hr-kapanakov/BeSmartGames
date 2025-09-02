@@ -130,11 +130,13 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   public startGame() {
     if (this.currDirIdx >= 0) {
       this.stopGame();
+      engine().audio.sfx.play("directions/sounds/sfx-robot-reset.mp3");
       return; //cannot start multiple times
     }
     this.currDirIdx = 0;
     engine().ticker.add(this.callback);
     this.ui.update();
+    engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
   }
 
   public stopGame() {
@@ -213,6 +215,8 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       this.previousTileIdx.x == this.currentLevel.finish.x &&
       this.previousTileIdx.y == this.currentLevel.finish.y
     ) {
+      engine().audio.sfx.play("directions/sounds/sfx-success.wav");
+
       this.stopGame();
       this.currentLevel.points = this.points;
       await engine().navigation.presentPopup(MenuPopup, [
@@ -250,6 +254,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         }
         this.currDirIdx++;
         this.ui.update();
+        engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
       }
       // TODO: bug - if forward, but no set direction
     }

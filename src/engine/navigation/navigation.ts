@@ -185,6 +185,8 @@ export class Navigation {
    * Show up a popup over current screen
    */
   public async presentPopup(ctor: AppScreenConstructor, data: unknown = null) {
+    this.app.audio.sfx.play("directions/sounds/sfx-popup.wav");
+
     if (this.currentScreen) {
       this.currentScreen.interactiveChildren = false;
       await this.currentScreen.pause?.();
@@ -206,6 +208,8 @@ export class Navigation {
    */
   public async dismissPopup() {
     if (!this.currentPopup) return;
+    this.app.audio.sfx.play("directions/sounds/sfx-popup.wav");
+
     const popup = this.currentPopup;
     this.currentPopup = undefined;
     await this.hideAndRemoveScreen(popup);
