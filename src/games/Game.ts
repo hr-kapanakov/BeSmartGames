@@ -35,7 +35,7 @@ export class Game<L extends Level> implements IGame {
   public currLevelIdx = -1;
 
   public get name() {
-    return this.constructor.name.replace("Game", "");
+    return "";
   }
 
   public get currentLevel() {

@@ -14,7 +14,6 @@ import manifest from "../manifest.json";
 import { CreationAudioPlugin } from "./audio/AudioPlugin";
 import { CreationNavigationPlugin } from "./navigation/NavigationPlugin";
 import { CreationResizePlugin } from "./resize/ResizePlugin";
-import { getResolution } from "./utils/getResolution";
 
 extensions.remove(ResizePlugin);
 extensions.add(CreationResizePlugin);
@@ -37,7 +36,6 @@ export class CreationEngine extends Application {
   /** Initialize the application */
   public async init(opts: Partial<ApplicationOptions>): Promise<void> {
     opts.resizeTo ??= window;
-    opts.resolution ??= getResolution();
 
     await super.init(opts);
 

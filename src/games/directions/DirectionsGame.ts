@@ -30,6 +30,10 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
   private previousTileIdx = { x: -1, y: -1 };
 
+  public get name() {
+    return "Directions";
+  }
+
   constructor() {
     super();
 
@@ -82,12 +86,13 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   public resize(width: number, height: number): void {
     this.background.setSize(width, height);
 
-    const ratioX = this.container.width / this.fieldContainer.width;
-    const ratioY = this.container.height / this.fieldContainer.height;
+    this.fieldContainer.scale = 1; // reset scale to take real width and height
+    const ratioX = width / this.fieldContainer.width;
+    const ratioY = height / this.fieldContainer.height;
     this.fieldContainer.scale = Math.min(ratioX, ratioY);
     this.fieldContainer.position.set(
-      (this.container.width - this.fieldContainer.width) / 2,
-      (this.container.height - this.fieldContainer.height) / 2,
+      (width - this.fieldContainer.width) / 2,
+      (height - this.fieldContainer.height) / 2,
     );
 
     this.ui.resize(width, height);
