@@ -7,7 +7,7 @@ import { Label } from "../ui/Label";
 /** Screen shown while loading assets */
 export class LoadScreen extends Container {
   /** Assets bundles required by this screen */
-  public static assetBundles = ["default", "menu"];
+  public static assetBundles = ["default"];
   /** Title */
   private title: Sprite;
   /** The logo */

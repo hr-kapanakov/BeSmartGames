@@ -1,15 +1,16 @@
-import { setEngine } from "./app/getEngine";
-import { GameScreen } from "./app/screens/GameScreen";
-import { LevelSelectionScreen } from "./app/screens/LevelSelectionScreen";
-import { MainMenuScreen } from "./app/screens/MainMenuScreen";
-import { userSettings } from "./app/utils/userSettings";
 import { CreationEngine } from "./engine/engine";
+import { setEngine } from "./app/getEngine";
+import { userSettings } from "./app/utils/userSettings";
+import { gameMgr } from "./games/GameManager";
+import { LoadScreen } from "./app/screens/LoadScreen";
+import { MainMenuScreen } from "./app/screens/MainMenuScreen";
+import { LevelSelectionScreen } from "./app/screens/LevelSelectionScreen";
+import { GameScreen } from "./app/screens/GameScreen";
 
 /**
  * Importing these modules will automatically register there plugins with the engine.
  */
 import "@pixi/sound";
-import { gameMgr } from "./games/GameManager";
 // import "@esotericsoftware/spine-pixi-v8";
 
 // Create a new creation engine instance
@@ -20,7 +21,7 @@ setEngine(engine);
   // Initialize the creation engine instance
   await engine.init({
     background: "#1E1E1E",
-    resizeOptions: { minWidth: 850, minHeight: 850, letterbox: true },
+    resizeOptions: { minWidth: 900, minHeight: 900, letterbox: true },
   });
 
   // Initialize the user settings
@@ -29,7 +30,15 @@ setEngine(engine);
   // Hacks
   document.onkeydown = onKeyDown;
 
+  // fullscreen on landscape
+  window.addEventListener("orientationchange", () => {
+    if (screen.orientation.type.includes("landscape"))
+      document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
   // Show the main menu
+  await engine.navigation.showScreen(LoadScreen);
   await engine.navigation.showScreen(MainMenuScreen);
   //await engine.navigation.showScreen(LevelSelectionScreen, "Directions");
   /*await engine.navigation.showScreen(

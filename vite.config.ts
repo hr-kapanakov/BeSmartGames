@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [assetpackPlugin()],
   server: {
     port: 8080,
-    open: true,
+    open: false,
   },
   define: {
     APP_VERSION: JSON.stringify(process.env.npm_package_version),

@@ -156,10 +156,13 @@ export class LevelSelectionScreen extends Container {
     for (let idx = 0; idx < this.levelButtons.length; idx++) {
       this.levelButtons[idx].position.x = width * 0.5 - 300 + (idx % 5) * 150;
       this.levelButtons[idx].position.y =
-        height * 0.35 + Math.floor(idx / 5) * 150;
+        height * 0.2 + this.selectLevelLabel.height + Math.floor(idx / 5) * 150;
     }
 
-    this.title.position.set(width * 0.9, height * 0.93);
+    this.title.position.set(
+      width - this.title.width / 2,
+      height - this.title.height / 2,
+    );
   }
 
   public async show() {
