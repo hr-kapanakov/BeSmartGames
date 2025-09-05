@@ -37,6 +37,11 @@ setEngine(engine);
     else document.exitFullscreen();
   });
 
+  keepScreenOn();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") keepScreenOn();
+  });
+
   // Show the main menu
   await engine.navigation.showScreen(LoadScreen);
   await engine.navigation.showScreen(MainMenuScreen);
@@ -80,5 +85,13 @@ function onKeyDown(evt: KeyboardEvent) {
         engine.navigation.height,
       );
     }
+  }
+}
+
+async function keepScreenOn() {
+  try {
+    await navigator.wakeLock.request("screen");
+  } catch {
+    /* empty */
   }
 }
