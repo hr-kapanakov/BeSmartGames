@@ -37,10 +37,8 @@ setEngine(engine);
     else document.exitFullscreen();
   });
 
-  keepScreenOn();
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") keepScreenOn();
-  });
+  if (document.visibilityState === "visible") keepScreenOn();
+  document.addEventListener("visibilitychange", onVisibilityChange);
 
   // Show the main menu
   await engine.navigation.showScreen(LoadScreen);
@@ -88,10 +86,20 @@ function onKeyDown(evt: KeyboardEvent) {
   }
 }
 
-async function keepScreenOn() {
+function keepScreenOn() {
   try {
-    await navigator.wakeLock.request("screen");
+    navigator.wakeLock.request("screen");
   } catch {
     /* empty */
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function onVisibilityChange(_evt: Event) {
+  if (document.visibilityState === "visible") {
+    keepScreenOn();
+    engine.start();
+  } else {
+    engine.stop();
   }
 }

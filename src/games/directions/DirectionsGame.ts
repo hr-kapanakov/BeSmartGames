@@ -13,6 +13,7 @@ import { Direction } from "../Utils";
 import { DirectionUI } from "./DirectionsUI";
 import { engine } from "../../app/getEngine";
 import { MenuPopup } from "../../app/popups/MenuPopup";
+import { LevelSelectionScreen } from "../../app/screens/LevelSelectionScreen";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
   private static walkFramesCount = 8;
@@ -181,13 +182,18 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       return; //cannot start multiple times
     }
     this.currDirIdx = 0;
+
+    engine().ticker.maxFPS = 30; // increase FPS if not started
     engine().ticker.add(this.callback);
+
     this.ui.update();
     engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
   }
 
   public stopGame() {
     engine().ticker.remove(this.callback);
+    engine().ticker.maxFPS = 15; // decrease FPS if not started
+
     this.currDirIdx = -1;
     this.previousTileIdx = this.currentLevel.start;
 
@@ -212,6 +218,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
   private updateDelta = 0;
   private async update(ticker: Ticker) {
+    console.log(engine().ticker.FPS);
     if (this.currDirIdx < 0) return;
 
     this.updateDelta += ticker.deltaTime;
@@ -271,13 +278,18 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         this.currentLevel.points,
         this.name,
       ]);
-      this.levels[this.currLevelIdx + 1].unlocked = true;
+      if (this.currLevelIdx + 1 < this.levels.length)
+        this.levels[this.currLevelIdx + 1].unlocked = true;
       this.save();
 
       setTimeout(async () => {
         await engine().navigation.dismissPopup();
-        this.init(this.container, this.currLevelIdx + 1);
-        this.resize(engine().navigation.width, engine().navigation.height);
+        if (this.currLevelIdx + 1 < this.levels.length) {
+          this.init(this.container, this.currLevelIdx + 1);
+          this.resize(engine().navigation.width, engine().navigation.height);
+        } else {
+          engine().navigation.showScreen(LevelSelectionScreen, this.name);
+        }
       }, 1000);
     }
 

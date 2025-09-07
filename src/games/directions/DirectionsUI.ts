@@ -139,14 +139,15 @@ export class DirectionUI {
       {
         defaultView: "button.png",
         nineSliceSprite: [64, 32, 64, 32],
-        textOffset: { x: 0, y: -4 },
+        textOffset: { x: 0, y: 0 },
       },
-      "⏶",
+      "<",
       this.scrollBox.width + 19,
       DirectionUI.ButtonSize / 2,
       false,
       false,
     );
+    this.scrollBoxUpButton.textLabel.rotation = Math.PI / 2;
     this.scrollBoxUpButton.onPress.connect(() => {
       const idx = Math.max(
         4,
@@ -160,14 +161,15 @@ export class DirectionUI {
       {
         defaultView: "button.png",
         nineSliceSprite: [64, 32, 64, 32],
-        textOffset: { x: 0, y: -4 },
+        textOffset: { x: 0, y: 0 },
       },
-      "⏷",
+      ">",
       this.scrollBox.width + 19,
       DirectionUI.ButtonSize / 2,
       false,
       false,
     );
+    this.scrollBoxDownButton.textLabel.rotation = Math.PI / 2;
     this.scrollBoxDownButton.onPress.connect(() => {
       const idx = Math.min(
         Math.max(4, this.scrollBox.items.length - 1),
