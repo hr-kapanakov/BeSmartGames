@@ -35,6 +35,10 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     return "Directions";
   }
 
+  public get lastUpdate() {
+    return new Date("2025/09/10");
+  }
+
   constructor() {
     super();
 

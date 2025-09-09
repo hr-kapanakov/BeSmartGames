@@ -15,9 +15,11 @@ export class Level {
 }
 
 export interface IGame {
+  lastVisit?: Date;
   levels: Level[];
   currLevelIdx: number;
   get name(): string;
+  get lastUpdate(): Date;
   setup(): void;
   load(): void;
   save(): void;
@@ -31,11 +33,16 @@ export class Game<L extends Level> implements IGame {
   /** Screen container */
   protected container!: Container;
 
+  public lastVisit?: Date;
   public levels: L[] = [];
   public currLevelIdx = -1;
 
   public get name() {
     return "";
+  }
+
+  public get lastUpdate() {
+    return new Date();
   }
 
   public get currentLevel() {
@@ -60,6 +67,7 @@ export class Game<L extends Level> implements IGame {
       this.levels[i].unlocked = jsonLevels[i].unlocked;
       this.levels[i].points = jsonLevels[i].points;
     }
+    this.lastVisit = new Date(json["lastVisit"] || new Date());
   }
 
   public saveJson(): Record<string, unknown> {
@@ -69,7 +77,7 @@ export class Game<L extends Level> implements IGame {
         new Level({ index: l.index, unlocked: l.unlocked, points: l.points }),
       );
     }
-    return { levels: jsonLevels };
+    return { levels: jsonLevels, lastVisit: this.lastVisit?.toISOString() };
   }
 
   public init(container: Container, levelIndex: number) {

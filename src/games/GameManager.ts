@@ -4,6 +4,10 @@ import { IGame } from "./Game";
 export class GameManager {
   public games: IGame[] = [new DirectionsGame()];
 
+  public get gameNames() {
+    return this.games.map((g) => g.name);
+  }
+
   constructor() {
     this.initGames();
   }

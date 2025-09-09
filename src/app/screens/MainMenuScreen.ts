@@ -15,7 +15,7 @@ export class MainMenuScreen extends Container {
   /** Title */
   private title: Sprite;
   /** Buttons */
-  private directionsButton: Button;
+  private gamesButtons: Button[] = [];
   private loadButton: Button;
   private saveButton: Button;
 
@@ -35,24 +35,9 @@ export class MainMenuScreen extends Container {
     this.addChild(this.title);
 
     // Games buttons
-    this.directionsButton = new Button(
-      {
-        icon: "directions-icon.png",
-        iconOffset: { x: -130, y: -7 },
-        textOffset: { x: 40, y: -7 },
-      },
-      "Directions",
-      450,
-      125,
-    );
-    this.directionsButton.onPress.connect(
-      async () =>
-        await engine().navigation.showScreen(
-          LevelSelectionScreen,
-          "Directions",
-        ),
-    );
-    this.addChild(this.directionsButton);
+    for (const gameName of gameMgr().gameNames) {
+      this.addGameButton(gameName);
+    }
 
     // Load and save button
     this.loadButton = new Button(
@@ -88,15 +73,76 @@ export class MainMenuScreen extends Container {
     this.addChild(this.saveButton);
   }
 
+  private addGameButton(gameName: string) {
+    const icon = new Container();
+    icon.addChild(
+      new Sprite({
+        texture: Texture.from(`${gameName.toLowerCase()}-icon.png`),
+      }),
+    );
+    let iconOffset = { x: -130, y: -7 };
+
+    // show alert if the game was updated after last visit
+    const game = gameMgr().game(gameName);
+    if (game && game.lastVisit && game.lastUpdate > game.lastVisit) {
+      const alert = new Button(
+        {
+          defaultView: new Sprite({
+            texture: Texture.from("circle.png"),
+            tint: "red",
+            scale: 0.7,
+          }),
+          nineSliceSprite: undefined,
+          textOffset: { y: -4 },
+        },
+        "!",
+        96,
+        96,
+        true,
+        false,
+      );
+      alert.textLabel.rotation = -Math.PI / 18;
+      alert.enabled = false;
+      alert.position.set(-25, -20);
+      icon.addChild(alert);
+      iconOffset = { x: -100, y: 25 };
+    }
+
+    const button = new Button(
+      {
+        icon: icon,
+        iconOffset: iconOffset,
+        textOffset: { x: 40, y: -7 },
+      },
+      gameName,
+      450,
+      125,
+    );
+    button.onPress.connect(
+      async () =>
+        await engine().navigation.showScreen(LevelSelectionScreen, gameName),
+    );
+    this.gamesButtons.push(button);
+    this.addChild(button);
+  }
+
   /** Resize the screen, fired whenever window size changes  */
   public resize(width: number, height: number) {
     this.background.setSize(width, height);
     this.title.position.set(width * 0.5, height * 0.2);
 
-    this.directionsButton.position.set(width * 0.5, height * 0.45);
+    for (let i = 0; i < this.gamesButtons.length; i++) {
+      this.gamesButtons[i].position.set(width * 0.5, height * 0.45 + 125 * i);
+    }
 
-    this.loadButton.position.set(width * 0.5, height * 0.45 + 150);
-    this.saveButton.position.set(width * 0.5, height * 0.45 + 250);
+    this.loadButton.position.set(
+      width * 0.5,
+      height * 0.45 + 125 * this.gamesButtons.length + 25,
+    );
+    this.saveButton.position.set(
+      width * 0.5,
+      height * 0.45 + 125 * this.gamesButtons.length + 125,
+    );
   }
 
   /** Show screen with animations */

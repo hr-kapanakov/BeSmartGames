@@ -90,7 +90,14 @@ export class LevelSelectionScreen extends Container {
     this.levelButtons.forEach((b) => this.removeChild(b));
     this.levelButtons = [];
 
-    const levels = gameMgr().game(gameName)?.levels || [];
+    const game = gameMgr().game(gameName);
+    if (!game) throw "Invalid game: " + gameName;
+
+    // update last visit
+    game.lastVisit = new Date();
+    game.save();
+
+    const levels = game?.levels || [];
     for (let idx = 0; idx < levels.length; idx++) {
       const button = new Button(
         {
