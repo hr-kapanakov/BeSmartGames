@@ -5,6 +5,7 @@ import { LevelSelectionScreen } from "./LevelSelectionScreen";
 import { animate } from "motion";
 import { ObjectTarget } from "motion/react";
 import { gameMgr } from "../../games/GameManager";
+import { ReleaseNotesPopup } from "../popups/ReleaseNotesPopup";
 
 /** Screen show main menu */
 export class MainMenuScreen extends Container {
@@ -15,6 +16,7 @@ export class MainMenuScreen extends Container {
   /** Title */
   private title: Sprite;
   /** Buttons */
+  private releaseNotesButton: Button;
   private gamesButtons: Button[] = [];
   private loadButton: Button;
   private saveButton: Button;
@@ -33,6 +35,24 @@ export class MainMenuScreen extends Container {
       scale: 0.5,
     });
     this.addChild(this.title);
+
+    this.releaseNotesButton = new Button(
+      {
+        defaultView: "circle.png",
+        nineSliceSprite: [64, 64, 64, 64],
+        anchor: 0.5,
+        icon: "icon-release-notes.png",
+        defaultIconScale: 0.8,
+        iconOffset: { x: 1, y: -1 },
+      },
+      "",
+      64,
+      64,
+    );
+    this.releaseNotesButton.onPress.connect(() =>
+      engine().navigation.presentPopup(ReleaseNotesPopup),
+    );
+    this.addChild(this.releaseNotesButton);
 
     // Games buttons
     for (const gameName of gameMgr().gameNames) {
@@ -130,6 +150,10 @@ export class MainMenuScreen extends Container {
   public resize(width: number, height: number) {
     this.background.setSize(width, height);
     this.title.position.set(width * 0.5, height * 0.2);
+    this.releaseNotesButton.position.set(
+      width * 0.99 - this.releaseNotesButton.width / 2,
+      height * 0.05,
+    );
 
     for (let i = 0; i < this.gamesButtons.length; i++) {
       this.gamesButtons[i].position.set(width * 0.5, height * 0.45 + 125 * i);
