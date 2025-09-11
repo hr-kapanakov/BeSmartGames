@@ -14,6 +14,7 @@ import { DirectionUI } from "./DirectionsUI";
 import { engine } from "../../app/getEngine";
 import { MenuPopup } from "../../app/popups/MenuPopup";
 import { LevelSelectionScreen } from "../../app/screens/LevelSelectionScreen";
+import { randomInt } from "../../engine/utils/random";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
   private static walkFramesCount = 8;
@@ -55,7 +56,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.container.removeChildren();
 
     this.background = new Sprite({
-      texture: Texture.from("background.png"),
+      texture: Texture.from(`background-${randomInt(1, 5)}.jpg`),
       alpha: 0.8,
     });
     this.container.addChildAt(this.background, 0);
@@ -222,7 +223,6 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
   private updateDelta = 0;
   private async update(ticker: Ticker) {
-    console.log(engine().ticker.FPS);
     if (this.currDirIdx < 0) return;
 
     this.updateDelta += ticker.deltaTime;
