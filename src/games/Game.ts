@@ -49,7 +49,14 @@ export class Game<L extends Level> implements IGame {
     return this.levels[this.currLevelIdx];
   }
 
-  public setup() {}
+  public setup() {
+    // unlock next level by default
+    let nextLevel = 0;
+    for (let i = 0; i < this.levels.length; i++) {
+      if (this.levels[i].points >= 0) nextLevel = i + 1;
+    }
+    if (nextLevel < this.levels.length) this.levels[nextLevel].unlocked = true;
+  }
 
   public load() {
     const json = storage.getObject(this.name);
