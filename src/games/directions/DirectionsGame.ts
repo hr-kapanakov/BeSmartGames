@@ -47,7 +47,6 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     for (let i = 0; i < DirectionsGame.levelsCount; i++) {
       this.levels.push(new DirectionsLevel({ index: i + 1, unlocked: false }));
     }
-    this.levels[0].unlocked = true; // unlock the first level by default
   }
 
   public initLevel(): void {
