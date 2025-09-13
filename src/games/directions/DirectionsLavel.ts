@@ -24,8 +24,9 @@ export class DirectionsLevel extends Level {
   public tiles: TileType[][] = [];
   public start!: Point;
   public finish!: Point;
+  public blocks: Point[] = [];
 
-  init() {
+  public init() {
     this.tiles = [];
 
     const data = engine().renderer.extract.pixels(
@@ -39,6 +40,7 @@ export class DirectionsLevel extends Level {
         const color = this.getColor(data, x, y);
         if (color.toHexa() == "#ff0000ff") this.start = new Point(x, y);
         if (color.toHexa() == "#00ff00ff") this.finish = new Point(x, y);
+        if (color.toHexa() == "#808080ff") this.blocks.push(new Point(x, y));
 
         if (this.getColor(data, x, y).toHexa() != "#ffffffff")
           row.push(this.getTileType(data, x, y));
@@ -48,20 +50,17 @@ export class DirectionsLevel extends Level {
     }
   }
 
-  get startTileType() {
-    return this.tiles[this.start.y][this.start.x];
-  }
-
-  get startDirection() {
+  public get startDirection() {
     return this.getTileDirection(this.start.x, this.start.y);
   }
 
-  get finishTileType() {
-    return this.tiles[this.finish.y][this.finish.x];
+  public get finishDirection() {
+    return this.getTileDirection(this.finish.x, this.finish.y);
   }
 
-  get finishDirection() {
-    return this.getTileDirection(this.finish.x, this.finish.y);
+  public blockDirection(i: number) {
+    const b = this.blocks[i];
+    return this.getTileDirection(b.x, b.y);
   }
 
   private getTileType(data: GetPixelsOutput, x: number, y: number) {

@@ -17,6 +17,7 @@ import { LevelSelectionScreen } from "../../app/screens/LevelSelectionScreen";
 import { randomInt } from "../../engine/utils/random";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
+  private static levelsCount = 20;
   private static walkFramesCount = 8;
   /** Background */
   private background!: Sprite;
@@ -37,13 +38,13 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   }
 
   public get lastUpdate() {
-    return new Date("2025/09/10");
+    return new Date("2025/09/13");
   }
 
   constructor() {
     super();
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < DirectionsGame.levelsCount; i++) {
       this.levels.push(new DirectionsLevel({ index: i + 1, unlocked: false }));
     }
     this.levels[0].unlocked = true; // unlock the first level by default
@@ -76,6 +77,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         this.fieldContainer.addChild(sprite);
       }
     }
+    this.addBlocks();
 
     if (this.currLevelIdx == 0) this.addHints();
 
@@ -102,6 +104,19 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     );
 
     this.ui.resize(width, height);
+  }
+
+  private addBlocks() {
+    for (let i = 0; i < this.currentLevel.blocks.length; i++) {
+      this.fieldContainer.addChild(
+        new Sprite({
+          texture: Texture.from("block.png"),
+          x: this.currentLevel.blocks[i].x * 64,
+          y: this.currentLevel.blocks[i].y * 64,
+          anchor: 0.5,
+        }),
+      );
+    }
   }
 
   private addHints() {
@@ -297,6 +312,14 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       }, 1000);
     }
 
+    // block
+    if (this.isBlockTile()) {
+      this.robotSprite.rotation += Math.PI;
+      if (this.robotSprite.rotation > Math.PI)
+        this.robotSprite.rotation -= 2 * Math.PI;
+      engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
+    }
+
     const previousTile =
       this.currentLevel.tiles[this.previousTileIdx.y][this.previousTileIdx.x];
     this.previousTileIdx = tileIdx;
@@ -321,5 +344,13 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       }
       // TODO: bug - if forward, but no set direction
     }
+  }
+
+  private isBlockTile() {
+    return this.currentLevel.blocks.some(
+      (b) =>
+        b.x == Math.round(this.robotSprite.x / 64) &&
+        b.y == Math.round(this.robotSprite.y / 64),
+    );
   }
 }
