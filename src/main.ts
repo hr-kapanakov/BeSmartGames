@@ -31,10 +31,10 @@ setEngine(engine);
   document.onkeydown = onKeyDown;
 
   // fullscreen on landscape
-  window.addEventListener("orientationchange", () => {
+  window.addEventListener("orientationchange", async () => {
+    if (document.fullscreenElement != null) await document.exitFullscreen();
     if (screen.orientation.type.includes("landscape"))
       document.documentElement.requestFullscreen();
-    else document.exitFullscreen();
   });
 
   if (document.visibilityState === "visible") keepScreenOn();

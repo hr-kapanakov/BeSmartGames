@@ -290,10 +290,10 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       engine().audio.sfx.play("directions/sounds/sfx-success.wav");
 
       this.stopGame();
-      this.currentLevel.points = this.points;
+      if (this.currentLevel.points < 0) this.currentLevel.points = this.points;
       await engine().navigation.presentPopup(MenuPopup, [
         `Level ${this.currLevelIdx + 1}`,
-        this.currentLevel.points,
+        this.points,
         this.name,
       ]);
       if (this.currLevelIdx + 1 < this.levels.length)

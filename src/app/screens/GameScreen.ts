@@ -28,6 +28,10 @@ export class GameScreen extends Container {
   public async show() {
     engine().audio.bgm.play("menu/sounds/bgm-main.mp3", { volume: 0.5 });
     this.alpha = 1;
+
+    // for smaller devices try to go in fullscreen mode if device is in landscape
+    if (screen.height < 600 && screen.orientation.type.includes("landscape"))
+      document.documentElement.requestFullscreen();
   }
 
   /** Hide screen with animations */

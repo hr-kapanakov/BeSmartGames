@@ -119,7 +119,7 @@ export class DirectionUI {
     this.scrollBox = new ScrollBox({
       background: "#7490A6",
       width: DirectionUI.ButtonSize + 6,
-      height: DirectionUI.ButtonSize * 5.5,
+      height: container.height * 0.5,
       padding: 3,
       type: "vertical",
       radius: 7,
@@ -134,6 +134,7 @@ export class DirectionUI {
     startButton.on("pointerdown", () => this.game.startGame());
     this.scrollBox.addItem(startButton);
 
+    const itemSize = DirectionUI.ButtonSize + this.scrollBox.list.padding;
     // scroll box buttons
     this.scrollBoxUpButton = new Button(
       {
@@ -149,9 +150,10 @@ export class DirectionUI {
     );
     this.scrollBoxUpButton.textLabel.rotation = Math.PI / 2;
     this.scrollBoxUpButton.onPress.connect(() => {
+      const visibleCount = Math.floor(this.scrollBox.height / itemSize) - 1;
       const idx = Math.max(
-        4,
-        Math.round(4 - this.scrollBox.scrollY / DirectionUI.ButtonSize) - 1,
+        visibleCount,
+        Math.floor(visibleCount + 1 - this.scrollBox.scrollY / itemSize) - 1,
       );
       this.scrollBox.scrollTo(idx);
     });
@@ -171,9 +173,10 @@ export class DirectionUI {
     );
     this.scrollBoxDownButton.textLabel.rotation = Math.PI / 2;
     this.scrollBoxDownButton.onPress.connect(() => {
+      const visibleCount = Math.floor(this.scrollBox.height / itemSize) - 1;
       const idx = Math.min(
-        Math.max(4, this.scrollBox.items.length - 1),
-        Math.round(4 - this.scrollBox.scrollY / DirectionUI.ButtonSize) + 1,
+        Math.max(visibleCount, this.scrollBox.items.length - 1),
+        Math.floor(visibleCount + 1 - this.scrollBox.scrollY / itemSize) + 1,
       );
       this.scrollBox.scrollTo(idx);
     });
@@ -195,7 +198,9 @@ export class DirectionUI {
       this.game.directions = [];
       // remove all but first
       while (this.scrollBox.items.length > 1) this.scrollBox.removeItem(1);
+      this.scrollBox.scrollTop();
       this.game.stopGame();
+      engine().audio.sfx.play("directions/sounds/sfx-robot-reset.mp3");
     });
     this.container.addChild(this.resetButton);
   }
@@ -263,10 +268,13 @@ export class DirectionUI {
       setTimeout(() => {
         scrollItem.scale = 0.75;
 
+        const itemSize = DirectionUI.ButtonSize + this.scrollBox.list.padding;
+        const visibleCount = Math.floor(this.scrollBox.height / itemSize) - 1;
         this.scrollBox.scrollTo(
           Math.min(
             this.scrollBox.items.length - 1,
-            (Math.floor(this.game.currDirIdx / 4) + 1) * 4,
+            (Math.floor(this.game.currDirIdx / visibleCount) + 1) *
+              visibleCount,
           ),
         );
       }, 300);
