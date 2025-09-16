@@ -3,7 +3,6 @@ import {
   Container,
   Graphics,
   Sprite,
-  Text,
   Texture,
   Ticker,
 } from "pixi.js";
@@ -125,12 +124,13 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       new Graphics().circle(upPosition.x, upPosition.y, 12).fill("3AA751"),
     );
     this.fieldContainer.addChild(
-      new Text({
-        text: "⇧",
+      new Sprite({
+        texture: Texture.from("arrow.png"),
         x: upPosition.x,
         y: upPosition.y,
         anchor: 0.5,
-        style: { fill: "white", fontWeight: "bold", fontSize: 18 },
+        width: 22,
+        height: 18,
       }),
     );
 
@@ -140,12 +140,14 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       new Graphics().circle(leftPosition.x, leftPosition.y, 12).fill("B9C021"),
     );
     this.fieldContainer.addChild(
-      new Text({
-        text: "⇦",
-        x: leftPosition.x,
-        y: leftPosition.y - 1,
+      new Sprite({
+        texture: Texture.from("arrow.png"),
+        x: leftPosition.x - 1,
+        y: leftPosition.y,
         anchor: 0.5,
-        style: { fill: "white", fontWeight: "bold", fontSize: 18 },
+        width: 22,
+        height: 18,
+        rotation: -Math.PI / 2,
       }),
     );
   }
