@@ -7,9 +7,12 @@ import { engine } from "../getEngine";
 import { LoadScreen } from "./LoadScreen";
 import { GameScreen } from "./GameScreen";
 import { MainMenuScreen } from "./MainMenuScreen";
+import { ScrollBox } from "@pixi/ui";
 
 /** Screen show level selection */
 export class LevelSelectionScreen extends Container {
+  private static ButtonSize = 150;
+
   /** Assets bundles required by this screen */
   public static assetBundles = ["default", "menu"];
   /** Background */
@@ -19,10 +22,10 @@ export class LevelSelectionScreen extends Container {
   private selectLevelLabel: Sprite;
   /** Exit button */
   private exitButton: Button;
-  /** Level buttons */
-  private levelButtons: Button[];
   /** Title */
   private title: Sprite;
+  /** Level buttons scroll box */
+  private scrollBox: ScrollBox;
 
   public gameName!: string;
 
@@ -72,8 +75,6 @@ export class LevelSelectionScreen extends Container {
     );
     this.addChild(this.exitButton);
 
-    this.levelButtons = [];
-
     this.title = new Sprite({
       texture: Texture.from("title.png"),
       anchor: 0.5,
@@ -81,14 +82,21 @@ export class LevelSelectionScreen extends Container {
       tint: "#dddddd",
     });
     this.addChild(this.title);
+
+    this.scrollBox = new ScrollBox({
+      width: LevelSelectionScreen.ButtonSize * 5,
+      height: LevelSelectionScreen.ButtonSize * 4,
+      type: "vertical",
+      bottomPadding: 50,
+    });
+    this.addChild(this.scrollBox);
   }
 
   init(gameName: string) {
     this.gameName = gameName;
     this.gameNameLabel.textLabel.text = gameName;
 
-    this.levelButtons.forEach((b) => this.removeChild(b));
-    this.levelButtons = [];
+    this.scrollBox.removeItems();
 
     const game = gameMgr().game(gameName);
     if (!game) throw "Invalid game: " + gameName;
@@ -98,22 +106,24 @@ export class LevelSelectionScreen extends Container {
     game.save();
 
     const levels = game?.levels || [];
+    let row = new Container();
     for (let idx = 0; idx < levels.length; idx++) {
       const button = new Button(
         {
           defaultView: this.getButtonTexture(idx, levels[idx].unlocked),
           nineSliceSprite: [170, 175, 170, 175],
+          anchor: 0,
 
           icon: levels[idx].unlocked ? "" : "lock.png",
           iconOffset: { x: 50, y: 50 },
           defaultIconScale: 0.5,
         },
         (idx + 1).toString(),
-        150,
-        150,
+        LevelSelectionScreen.ButtonSize,
+        LevelSelectionScreen.ButtonSize,
         levels[idx].unlocked,
       );
-      button.position.set(100 + idx * 150, 200);
+      button.position.x = (idx % 5) * LevelSelectionScreen.ButtonSize;
 
       if (levels[idx].unlocked) {
         button.onPress.connect(async () => {
@@ -144,8 +154,11 @@ export class LevelSelectionScreen extends Container {
         );
       }
 
-      this.levelButtons.push(button);
-      this.addChild(button);
+      row.addChild(button);
+      if (row.children.length == 5) {
+        this.scrollBox.addItem(row);
+        row = new Container();
+      }
     }
   }
 
@@ -160,11 +173,20 @@ export class LevelSelectionScreen extends Container {
       height * 0.05,
     );
 
-    for (let idx = 0; idx < this.levelButtons.length; idx++) {
-      this.levelButtons[idx].position.x = width * 0.5 - 300 + (idx % 5) * 150;
-      this.levelButtons[idx].position.y =
-        height * 0.2 + this.selectLevelLabel.height + Math.floor(idx / 5) * 150;
-    }
+    this.scrollBox.position.set(
+      width * 0.5 - LevelSelectionScreen.ButtonSize * 2.5,
+      height * 0.2 +
+        this.selectLevelLabel.height -
+        LevelSelectionScreen.ButtonSize * 0.5,
+    );
+    this.scrollBox.height = height - this.scrollBox.y;
+    // fix bug in scroll box after resize
+    this.scrollBox.init({
+      width: LevelSelectionScreen.ButtonSize * 5,
+      height: height - this.scrollBox.y,
+      type: "vertical",
+      bottomPadding: 50,
+    });
 
     this.title.position.set(
       width - this.title.width / 2,
