@@ -8,7 +8,7 @@ import {
 } from "pixi.js";
 import { Game } from "../Game";
 import { DirectionsLevel, TileType } from "./DirectionsLavel";
-import { Direction } from "../Utils";
+import { Direction, getRotation } from "../Utils";
 import { DirectionUI } from "./DirectionsUI";
 import { engine } from "../../app/getEngine";
 import { MenuPopup } from "../../app/popups/MenuPopup";
@@ -16,7 +16,7 @@ import { LevelSelectionScreen } from "../../app/screens/LevelSelectionScreen";
 import { randomInt } from "../../engine/utils/random";
 
 export class DirectionsGame extends Game<DirectionsLevel> {
-  private static levelsCount = 20;
+  private static levelsCount = 30;
   private static walkFramesCount = 8;
   /** Background */
   private background!: Sprite;
@@ -76,6 +76,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       }
     }
     this.addBlocks();
+    this.addTeleports();
 
     if (this.currLevelIdx == 0) this.addHints();
 
@@ -93,8 +94,8 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.background.setSize(width, height);
 
     this.fieldContainer.scale = 1; // reset scale to take real width and height
-    const ratioX = width / this.fieldContainer.width;
-    const ratioY = height / this.fieldContainer.height;
+    const ratioX = (width * 0.9) / this.fieldContainer.width; // * 0.9 - add some buffer
+    const ratioY = (height * 0.9) / this.fieldContainer.height; // * 0.9 - add some buffer
     this.fieldContainer.scale = Math.min(ratioX, ratioY);
     this.fieldContainer.position.set(
       (width - this.fieldContainer.width) / 2,
@@ -114,6 +115,44 @@ export class DirectionsGame extends Game<DirectionsLevel> {
           anchor: 0.5,
         }),
       );
+    }
+  }
+
+  private addTeleports() {
+    for (const color in this.currentLevel.teleports) {
+      const positions = this.currentLevel.teleports[color];
+      for (const position of positions) {
+        const dir = this.currentLevel.getTileDirection(position.x, position.y);
+        let rotation = 0;
+        const offset = { x: 0, y: 0 };
+        if (dir == Direction.Up || dir == Direction.Down) {
+          rotation = Math.PI / 2;
+          offset.x = 10;
+        } else {
+          offset.y = -10;
+        }
+
+        this.fieldContainer.addChild(
+          new Sprite({
+            texture: Texture.from("teleport-base.png"),
+            x: position.x * 64 + offset.x,
+            y: position.y * 64 + offset.y,
+            anchor: 0.5,
+            rotation: rotation,
+          }),
+        );
+        const tint = color.slice(0, 5) + "0000";
+        this.fieldContainer.addChild(
+          new Sprite({
+            texture: Texture.from("teleport-cloud.png"),
+            x: position.x * 64 + offset.x,
+            y: position.y * 64 + offset.y,
+            anchor: 0.5,
+            tint: tint,
+            rotation: rotation,
+          }),
+        );
+      }
     }
   }
 
@@ -170,19 +209,11 @@ export class DirectionsGame extends Game<DirectionsLevel> {
   private addFinishSprite() {
     let x = this.currentLevel.finish.x * 64;
     let y = this.currentLevel.finish.y * 64;
-    let rotation = 0;
-    if (this.currentLevel.finishDirection == Direction.Up) {
-      rotation = -Math.PI / 2;
-      y += 24;
-    } else if (this.currentLevel.finishDirection == Direction.Right) {
-      x -= 24;
-    } else if (this.currentLevel.finishDirection == Direction.Down) {
-      rotation = Math.PI / 2;
-      y -= 24;
-    } else if (this.currentLevel.finishDirection == Direction.Left) {
-      rotation = Math.PI;
-      x += 24;
-    }
+    const rotation = getRotation(this.currentLevel.finishDirection);
+    if (this.currentLevel.finishDirection == Direction.Right) x -= 24;
+    else if (this.currentLevel.finishDirection == Direction.Down) y -= 24;
+    else if (this.currentLevel.finishDirection == Direction.Left) x += 24;
+    else if (this.currentLevel.finishDirection == Direction.Up) y += 24;
 
     this.fieldContainer.addChild(
       new Sprite({
@@ -219,15 +250,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
     this.previousTileIdx = this.currentLevel.start;
 
     if (this.robotSprite) {
-      if (this.currentLevel.startDirection == Direction.Up) {
-        this.robotSprite.rotation = -Math.PI / 2;
-      } else if (this.currentLevel.startDirection == Direction.Right) {
-        this.robotSprite.rotation = 0;
-      } else if (this.currentLevel.startDirection == Direction.Down) {
-        this.robotSprite.rotation = Math.PI / 2;
-      } else if (this.currentLevel.startDirection == Direction.Left) {
-        this.robotSprite.rotation = Math.PI;
-      }
+      this.robotSprite.rotation = getRotation(this.currentLevel.startDirection);
       this.robotSprite.position.set(
         this.currentLevel.start.x * 64,
         this.currentLevel.start.y * 64,
@@ -251,21 +274,17 @@ export class DirectionsGame extends Game<DirectionsLevel> {
 
     // robot movement
     const deltaPos = { x: 0, y: 0 };
-    if (this.robotSprite.rotation == -Math.PI / 2) {
-      // Up
-      deltaPos.y = -1;
-    } else if (this.robotSprite.rotation == 0)
-      // Right
-      deltaPos.x = 1;
-    else if (this.robotSprite.rotation == Math.PI / 2) {
-      // Down
-      deltaPos.y = 1;
-    } else if (this.robotSprite.rotation == Math.PI) {
-      // Left
-      deltaPos.x = -1;
-    }
-    this.robotSprite.position.x += deltaPos.x * 10;
-    this.robotSprite.position.y += deltaPos.y * 10;
+    // Right
+    if (this.robotSprite.rotation == 0) deltaPos.x = 1;
+    // Down
+    else if (this.robotSprite.rotation == Math.PI * 0.5) deltaPos.y = 1;
+    // Left
+    else if (this.robotSprite.rotation == Math.PI) deltaPos.x = -1;
+    // Up
+    else if (this.robotSprite.rotation == Math.PI * 1.5) deltaPos.y = -1;
+
+    this.robotSprite.x += deltaPos.x * 10;
+    this.robotSprite.y += deltaPos.y * 10;
 
     // current tile
     const tileIdx = {
@@ -321,6 +340,17 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
     }
 
+    // teleport
+    const teleportPos = this.getTeleportPosition(tileIdx);
+    if (teleportPos && !this.getTeleportPosition(this.previousTileIdx)) {
+      engine().audio.sfx.play("directions/sounds/sfx-robot-teleport.wav");
+      this.robotSprite.x = teleportPos.x * 64;
+      this.robotSprite.y = teleportPos.y * 64;
+      this.robotSprite.rotation = getRotation(
+        this.currentLevel.getTileDirection(teleportPos.x, teleportPos.y),
+      );
+    }
+
     const previousTile =
       this.currentLevel.tiles[this.previousTileIdx.y][this.previousTileIdx.x];
     this.previousTileIdx = tileIdx;
@@ -330,15 +360,7 @@ export class DirectionsGame extends Game<DirectionsLevel> {
       // set new direction
       const newDir = this.directions[this.currDirIdx];
       if (newDir) {
-        if (newDir == Direction.Up) {
-          this.robotSprite.rotation = -Math.PI / 2;
-        } else if (newDir == Direction.Right) {
-          this.robotSprite.rotation = 0;
-        } else if (newDir == Direction.Down) {
-          this.robotSprite.rotation = Math.PI / 2;
-        } else if (newDir == Direction.Left) {
-          this.robotSprite.rotation = Math.PI;
-        }
+        this.robotSprite.rotation = getRotation(newDir);
         this.currDirIdx++;
         this.ui.update();
         engine().audio.sfx.play("directions/sounds/sfx-robot-walk.wav");
@@ -353,5 +375,18 @@ export class DirectionsGame extends Game<DirectionsLevel> {
         b.x == Math.round(this.robotSprite.x / 64) &&
         b.y == Math.round(this.robotSprite.y / 64),
     );
+  }
+
+  private getTeleportPosition(tileIdx: { x: number; y: number }) {
+    const res = Object.values(this.currentLevel.teleports).find((ps) =>
+      ps.some((p) => p.x == tileIdx.x && p.y == tileIdx.y),
+    );
+    if (res) {
+      // if we are at first position - teleport to the second one
+      if (res[0].x == tileIdx.x && res[0].y == tileIdx.y) return res[1];
+      // else teleport to the first one
+      return res[0];
+    }
+    return null;
   }
 }

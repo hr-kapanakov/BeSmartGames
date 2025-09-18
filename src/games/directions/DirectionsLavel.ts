@@ -25,9 +25,12 @@ export class DirectionsLevel extends Level {
   public start!: Point;
   public finish!: Point;
   public blocks: Point[] = [];
+  public teleports: Record<string, Point[]> = {};
 
   public init() {
     this.tiles = [];
+    this.blocks = [];
+    this.teleports = {};
 
     const data = engine().renderer.extract.pixels(
       Texture.from(`level${this.index}.png`),
@@ -41,6 +44,12 @@ export class DirectionsLevel extends Level {
         if (color.toHexa() == "#ff0000ff") this.start = new Point(x, y);
         if (color.toHexa() == "#00ff00ff") this.finish = new Point(x, y);
         if (color.toHexa() == "#808080ff") this.blocks.push(new Point(x, y));
+        // teleports - color is blue == ff
+        if (color.toHexa().endsWith("ffff") && color.toHexa() != "#ffffffff") {
+          if (!(color.toHexa() in this.teleports))
+            this.teleports[color.toHexa()] = [];
+          this.teleports[color.toHexa()].push(new Point(x, y));
+        }
 
         if (this.getColor(data, x, y).toHexa() != "#ffffffff")
           row.push(this.getTileType(data, x, y));
@@ -58,9 +67,16 @@ export class DirectionsLevel extends Level {
     return this.getTileDirection(this.finish.x, this.finish.y);
   }
 
-  public blockDirection(i: number) {
-    const b = this.blocks[i];
-    return this.getTileDirection(b.x, b.y);
+  public getTileDirection(x: number, y: number) {
+    const tile = this.tiles[y][x];
+    if (tile == TileType.X) {
+      if (x > 0 && this.tiles[y][x - 1] != TileType.None) return Direction.Left;
+      return Direction.Right;
+    } else {
+      // Y tile
+      if (y > 0 && this.tiles[y - 1][x] != TileType.None) return Direction.Up;
+      return Direction.Down;
+    }
   }
 
   private getTileType(data: GetPixelsOutput, x: number, y: number) {
@@ -93,17 +109,5 @@ export class DirectionsLevel extends Level {
       b: data.pixels[idx + 2],
       a: data.pixels[idx + 3],
     });
-  }
-
-  private getTileDirection(x: number, y: number) {
-    const tile = this.tiles[y][x];
-    if (tile == TileType.X) {
-      if (x > 0 && this.tiles[y][x - 1] != TileType.None) return Direction.Left;
-      return Direction.Right;
-    } else {
-      // Y tile
-      if (y > 0 && this.tiles[y - 1][x] != TileType.None) return Direction.Up;
-      return Direction.Down;
-    }
   }
 }

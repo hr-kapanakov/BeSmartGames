@@ -1,6 +1,5 @@
 - Bump version
 - Change game update date
-- Unlock first of the new levels
 - Add release notes to popup
 - Push to "releases" branch
 - Add new git tag
