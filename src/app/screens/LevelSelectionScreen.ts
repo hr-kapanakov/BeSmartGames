@@ -123,7 +123,7 @@ export class LevelSelectionScreen extends Container {
         LevelSelectionScreen.ButtonSize,
         levels[idx].unlocked,
       );
-      button.position.x = (idx % 5) * LevelSelectionScreen.ButtonSize;
+      button.x = (idx % 5) * LevelSelectionScreen.ButtonSize;
 
       if (levels[idx].unlocked) {
         button.onPress.connect(async () => {
