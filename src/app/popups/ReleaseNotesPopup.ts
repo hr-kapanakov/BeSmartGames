@@ -86,7 +86,9 @@ export class ReleaseNotesPopup extends Container {
       });
       this.panel.addChild(this.scrollBox);
 
-      this.addReleaseNote("v0.1.0", "* Directions game with first 20 levels");
+      this.addReleaseNote("v0.1.2", "* Directions game levels 21 - 30");
+      this.addReleaseNote("v0.1.1", "* Directions game - 10 new levels(11-20)");
+      this.addReleaseNote("v0.1.0", "* Directions game with first 10 levels");
     }
     this.scrollBox.width = this.panelBase.boxWidth * 0.9;
     this.scrollBox.x = (-this.panelBase.boxWidth * 0.9) / 2;
